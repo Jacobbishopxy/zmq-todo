@@ -1,0 +1,10 @@
+[workspace]
+resolver = "2"
+members = ["zmq-rs"]
+
+[workspace.package]
+authors = ["JacobX <jacobbishopxy@gmail.com>"]
+description = "ZMQ RS"
+edition = "2021"
+readme = "https://github.com/Jacobbishopxy/zmq-todo"
+rust-version = "1.83"

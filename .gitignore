@@ -1,0 +1,6 @@
+.vscode
+
+# rust
+/target
+# cpp
+/build
