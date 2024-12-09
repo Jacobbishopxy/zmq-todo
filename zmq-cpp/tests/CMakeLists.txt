@@ -83,3 +83,9 @@ target_link_libraries(proxy_pub cppzmq)
 add_executable(proxy_sub proxy_sub.cc)
 target_link_libraries(proxy_sub cppzmq)
 
+# ================================================================================================
+# dev
+# ================================================================================================
+
+add_executable(simple_pair simple_pair.cc)
+target_link_libraries(simple_pair cppzmq)
