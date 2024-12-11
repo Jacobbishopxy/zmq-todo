@@ -10,6 +10,7 @@
 
 #include <iostream>
 #include <string>
+#include <thread>
 #include <zmq.hpp>
 
 const std::string EP = "tcp://127.0.0.1:5555";
@@ -49,6 +50,19 @@ public:
     void on_event_accepted(const zmq_event_t& event, const char* addr) override
     {
         std::cout << "[EVENT ACCEPTED] Address: " << addr << std::endl;
+    }
+
+    void start(zmq::socket_t& socket, std::string const& addr)
+    {
+        this->init(socket, addr);
+        auto l = [this]
+        {
+            while (this->check_event(-1))
+            {
+            }
+        };
+        auto t = std::thread(l);
+        t.detach();
     }
 };
 

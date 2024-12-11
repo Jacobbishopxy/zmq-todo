@@ -6,7 +6,6 @@
  **/
 
 #include <iostream>
-#include <thread>
 
 #include "common.hpp"
 
@@ -24,25 +23,9 @@ int main(int argc, char** argv)
 
     // Monitor
     CustomMonitor frontend_monitor;
-    frontend_monitor.init(frontend, InprocMonitorF, ZMQ_EVENT_ALL);
-    auto fml = [&frontend_monitor]
-    {
-        while (frontend_monitor.check_event(-1))
-        {
-        }
-    };
-    auto frontend_monitor_t = std::thread(fml);
-    frontend_monitor_t.detach();
+    frontend_monitor.start(frontend, InprocMonitorF);
     CustomMonitor backend_monitor;
-    backend_monitor.init(backend, InprocMonitorB, ZMQ_EVENT_ALL);
-    auto bml = [&backend_monitor]
-    {
-        while (backend_monitor.check_event(-1))
-        {
-        }
-    };
-    auto backend_monitor_t = std::thread(bml);
-    backend_monitor_t.detach();
+    backend_monitor.start(backend, InprocMonitorB);
 
     std::cout << "Proxy started: frontend on " << FrontendEP << ", backend on "
               << BackendEP << std::endl;
