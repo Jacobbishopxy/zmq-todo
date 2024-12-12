@@ -40,8 +40,7 @@ int main(int argc, char** argv)
         // Receive the second frame
         auto dr = router.recv(delimiter_or_request, zmq::recv_flags::none);
         if (dr)
-            std::cout << "recv_result -> delimiter_or_request: " << dr.value()
-                      << std::endl;
+            std::cout << "recv_result -> delimiter_or_request: " << dr.value() << std::endl;
 
         std::string client_id(static_cast<char*>(identity.data()), identity.size());
 
