@@ -32,12 +32,12 @@ sudo make -j install
 
 - [pub_client](./tests/simple_pub_client.cc)(connect) -> [sub_server](./tests/simple_sub_server.cc)(bind)
 
-- [req_client](./tests/proxy_req_client.cc)(connect) <-> [proxy_dealer_router](./tests/proxy_dealer_router.cc)(binds) <-> [rep_worker](./tests/proxy_rep_worker.cc)(connect)
+- [req_client](./tests/proxy_req_client.cc)(connect, sync) <-> [proxy_dealer_router](./tests/proxy_dealer_router.cc)(binds) <-> [rep_worker](./tests/proxy_rep_worker.cc)(connect, sync)
 
-- [dealer_client](./tests/proxy_dealer_client.cc)(connect) <-> [proxy_dealer_router](./tests/proxy_dealer_router.cc)(binds) <-> [rep_worker](./tests/proxy_rep_worker.cc)(connect)
+- [dealer_client](./tests/proxy_dealer_client.cc)(connect, async) <-> [proxy_dealer_router](./tests/proxy_dealer_router.cc)(binds) <-> [rep_worker](./tests/proxy_rep_worker.cc)(connect, sync)
 
-- [req_client](./tests/proxy_req_client.cc)(connect) <-> [proxy_dealer_router](./tests/proxy_dealer_router.cc)(binds) <-> [router_worker](./tests/proxy_router_worker.cc)(connect)
+- [req_client](./tests/proxy_req_client.cc)(connect, sync) <-> [proxy_dealer_router](./tests/proxy_dealer_router.cc)(binds) <-> [router_worker](./tests/proxy_router_worker.cc)(connect, async)
 
-- [dealer_client](./tests/proxy_dealer_client.cc)(connect) <-> [proxy_dealer_router](./tests/proxy_dealer_router.cc)(binds) <-> [router_worker](./tests/proxy_router_worker.cc)(connect)
+- [dealer_client](./tests/proxy_dealer_client.cc)(connect, async) <-> [proxy_dealer_router](./tests/proxy_dealer_router.cc)(binds) <-> [router_worker](./tests/proxy_router_worker.cc)(connect, async)
 
 - [pub](./tests/proxy_pub.cc)(connect) -> [proxy_xpub_xsub](./tests/proxy_pub_sub.cc)(binds) -> [sub](./tests/proxy_sub.cc)(connect)
