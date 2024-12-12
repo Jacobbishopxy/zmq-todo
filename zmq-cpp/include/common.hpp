@@ -66,4 +66,23 @@ public:
     }
 };
 
+inline void recv_multipart(zmq::socket_t& socket)
+{
+    zmq::message_t message;
+
+    // Receive the first part
+    while (true)
+    {
+        auto recv_result = socket.recv(message, zmq::recv_flags::none);
+        std::cout << "> " << message.to_string() << std::endl;
+
+        // Check if this is the last part
+        if (!message.more())
+        {
+            std::cout << std::endl;
+            break;  // Exit the loop if no more parts
+        }
+    }
+}
+
 #endif  //!__COMMON__H__
