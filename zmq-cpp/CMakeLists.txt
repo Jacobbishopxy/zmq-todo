@@ -5,5 +5,6 @@
 
 include_directories("include")
 
-add_subdirectory("todo")
 add_subdirectory("tests")
+add_subdirectory("todo")
+add_subdirectory("majordomo")
