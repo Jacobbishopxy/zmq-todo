@@ -37,8 +37,11 @@ target_link_libraries(simple_router_server cppzmq)
 add_executable(simple_router_client simple_router_client.cc)
 target_link_libraries(simple_router_client cppzmq)
 
-add_executable(simple_dealer simple_dealer.cc)
-target_link_libraries(simple_dealer cppzmq)
+add_executable(simple_dealer_client simple_dealer_client.cc)
+target_link_libraries(simple_dealer_client cppzmq)
+
+add_executable(simple_dealer_server simple_dealer_server.cc)
+target_link_libraries(simple_dealer_server cppzmq)
 
 ###################################################################################################
 # pub_server -> [sub_client]

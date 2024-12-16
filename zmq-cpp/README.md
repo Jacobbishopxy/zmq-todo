@@ -20,11 +20,11 @@ sudo make -j install
 
 - [req](./tests/simple_req.cc)(connect, sync) <-> [rep](./tests/simple_rep.cc)(bind, sync)
 
-- [dealer](./tests/simple_dealer.cc)(connect, async) <-> [router](./tests/simple_router_server.cc)(bind, async)
+- [dealer](./tests/simple_dealer_client.cc)(connect, async) <-> [router](./tests/simple_router_server.cc)(bind, async)
 
 - [req](./tests/simple_req.cc)(connect, sync) <-> [router](./tests/simple_router_server.cc)(bind, async)
 
-- [dealer](./tests/simple_dealer.cc)(connect, async) <-> [rep](./tests/simple_rep.cc)(bind, sync)
+- [dealer](./tests/simple_dealer_client.cc)(connect, async) <-> [rep](./tests/simple_rep.cc)(bind, sync)
 
 - [router_client](./tests/simple_router_client.cc)(connect, async) <-> [router_sever](./tests/simple_router_server.cc)(bind, async)
 
