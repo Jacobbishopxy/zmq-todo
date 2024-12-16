@@ -14,7 +14,8 @@ void printUsage(const char* programName)
 {
     std::cerr << "Usage: " << programName << " --router_id=<router_id>\n";
     std::cerr << "Options:\n";
-    std::cerr << "  --router_id=<router_id>  Specify the router ID to send the message to (required).\n";
+    std::cerr << "  --send_from=<self_id>  Specify the self ID to send the message to (required).\n";
+    std::cerr << "  --send_to=<target_id>  Specify the target ID to send the message to (required).\n";
 }
 
 // Function to parse command-line arguments
@@ -25,9 +26,13 @@ std::string parseRouterId(int argc, char** argv)
     for (int i = 1; i < argc; ++i)
     {
         std::string arg = argv[i];
-        if (arg.rfind("--router_id=", 0) == 0)
+        if (arg.rfind("--send_from=", 0) == 0)
         {
-            routerId = arg.substr(12);  // Extract value after "--router_id="
+            routerId = arg.substr(12);  // Extract value after "--send_from="
+        }
+        else if (arg.rfind("--send_to=", 0) == 0)
+        {
+            routerId = arg.substr(10);  // Extract value after "--send_to="
         }
     }
 
@@ -36,29 +41,28 @@ std::string parseRouterId(int argc, char** argv)
 
 int main(int argc, char** argv)
 {
-    if (argc < 2)
+    if (argc < 3)
     {
         printUsage(argv[0]);
         return EXIT_FAILURE;
     }
 
     // Parse the --router_id argument
-    std::string router_id = parseRouterId(argc, argv);
+    std::string send_from = "dealer#1";
+    std::string send_to = parseRouterId(argc, argv);
 
     // Create a zmq context and router socket
     zmq::context_t context(1);
     zmq::socket_t dealer(context, zmq::socket_type::dealer);
 
-    // Dealer Id
-    std::string dealer_id = "dealer#1";
-    dealer.set(zmq::sockopt::routing_id, dealer_id);
+    dealer.set(zmq::sockopt::routing_id, send_from);
 
     dealer.connect(EP);
-    std::cout << dealer_id << " connected to " << EP << "..." << std::endl;
+    std::cout << send_from << " connected to " << EP << "..." << std::endl;
 
     // send to a router
-    zmq::message_t send_to(router_id.size());
-    memcpy(send_to.data(), router_id.data(), router_id.size());
+    zmq::message_t target(send_to.size());
+    memcpy(target.data(), send_to.data(), send_to.size());
 
     // Send a request
     std::string request_text = "Hello, Router!";

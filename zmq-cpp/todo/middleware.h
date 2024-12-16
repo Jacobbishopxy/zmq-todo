@@ -23,7 +23,7 @@ public:
     void run();
 
 private:
-    void setupMonitor(const std::shared_ptr<zmq::socket_t>& socket, const std::string& socketName);
+    void setupMonitor(const std::shared_ptr<zmq::socket_t> socket, const std::string& socketName);
 
     std::shared_ptr<zmq::context_t> m_context;
     std::shared_ptr<zmq::socket_t> m_frontend;

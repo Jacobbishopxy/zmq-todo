@@ -42,7 +42,7 @@ void TodoMiddleware::run()
     zmq::proxy(*m_frontend, *m_backend);
 }
 
-void TodoMiddleware::setupMonitor(const std::shared_ptr<zmq::socket_t>& socket, const std::string& socketName)
+void TodoMiddleware::setupMonitor(const std::shared_ptr<zmq::socket_t> socket, const std::string& socketName)
 {
     // Generate a unique monitor endpoint
     std::ostringstream monitorAddress;
