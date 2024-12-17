@@ -17,7 +17,12 @@ TodoClient::TodoClient(const std::string& client_id, const std::string& connect_
 {
     this->m_client_id = client_id;
     this->m_client_socket->set(zmq::sockopt::routing_id, this->m_client_id);
+    // timeout for `send`
+    this->m_client_socket->set(zmq::sockopt::sndtimeo, 2000);
+    // timeout for `recv`
+    this->m_client_socket->set(zmq::sockopt::rcvtimeo, 2000);
     this->m_client_socket->connect(connect_address);
+
     std::cout << client_id << " connected to " << connect_address << std::endl;
 }
 
