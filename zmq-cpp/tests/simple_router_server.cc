@@ -27,6 +27,12 @@ int main(int argc, char** argv)
 
     while (true)
     {
+        recv_multipart(router);
+    }
+
+#if 0
+    while (true)
+    {
         zmq::message_t identity;
         zmq::message_t delimiter_or_request;
         zmq::message_t request;
@@ -84,6 +90,7 @@ int main(int argc, char** argv)
             router.send(reply, zmq::send_flags::none);        // Reply frame
         }
     }
+#endif
 
     return 0;
 }

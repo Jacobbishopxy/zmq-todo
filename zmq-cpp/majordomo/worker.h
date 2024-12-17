@@ -16,7 +16,7 @@
 class TodoWorker
 {
 public:
-    TodoWorker(const std::string& address);
+    TodoWorker(const std::string& worker_id, const std::string& address);
     ~TodoWorker();
 
     void run();
@@ -26,11 +26,12 @@ protected:
 
 private:
     void handleRequest(const TodoRequest& request);
-    const TodoResponse& sendResponse();
+    void sendResponse(const TodoResponse& response);
 
     std::shared_ptr<zmq::context_t> m_context;
     std::shared_ptr<zmq::socket_t> m_worker_socket;
 
+    std::string m_worker_id;
     std::unordered_map<uint, Todo> m_todos;
     uint m_next_id;
 };

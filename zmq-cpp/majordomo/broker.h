@@ -23,6 +23,7 @@ public:
 private:
     void setupMonitor();
 
+    std::shared_ptr<zmq::context_t> m_context;
     std::shared_ptr<zmq::socket_t> m_router;
     std::shared_ptr<CustomMonitor> m_monitor;
     std::thread m_monitor_t;
