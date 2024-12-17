@@ -14,6 +14,7 @@
 #include <zmq.hpp>
 
 const std::string EP = "tcp://127.0.0.1:5555";
+const std::string EP2 = "tcp://127.0.0.1:5556";
 
 const std::string FrontendEP = "tcp://127.0.0.1:5565";
 const std::string BackendEP = "tcp://127.0.0.1:5566";

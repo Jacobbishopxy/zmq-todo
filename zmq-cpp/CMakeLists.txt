@@ -6,5 +6,5 @@
 include_directories("include")
 
 add_subdirectory("tests")
-add_subdirectory("todo")
+add_subdirectory("proxy_req_router")
 add_subdirectory("majordomo")
