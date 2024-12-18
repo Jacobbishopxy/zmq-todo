@@ -67,7 +67,34 @@ public:
     }
 };
 
-inline void recv_multipart(zmq::socket_t& socket)
+inline std::vector<zmq::message_t> recv_multipart(zmq::socket_t& socket)
+{
+    std::vector<zmq::message_t> ans;
+
+    while (true)
+    {
+        zmq::message_t message;
+        auto recv_result = socket.recv(message, zmq::recv_flags::none);
+        ans.push_back(std::move(message));
+
+        if (!message.more())
+            break;
+    }
+
+    return ans;
+}
+
+inline void send_multipart(zmq::socket_t& socket, std::vector<zmq::message_t>& messages)
+{
+    for (size_t i = 0; i < messages.size(); ++i)
+    {
+        // Use sndmore for all but the last message
+        auto flags = (i < messages.size() - 1) ? zmq::send_flags::sndmore : zmq::send_flags::none;
+        socket.send(messages[i], flags);
+    }
+}
+
+inline void recv_multipart_print(zmq::socket_t& socket)
 {
     zmq::message_t message;
 

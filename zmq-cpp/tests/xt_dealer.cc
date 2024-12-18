@@ -21,13 +21,13 @@ void dealerThread(zmq::context_t& context)
     zmq::socket_t pair(context, zmq::socket_type::pair);
     pair.connect(INPROC_ADDR);
 
+    zmq::pollitem_t items[] = {
+        {pair.handle(), 0, ZMQ_POLLIN, 0},
+        {dealer.handle(), 0, ZMQ_POLLIN, 0},
+    };
+
     while (true)
     {
-        zmq::pollitem_t items[] = {
-            {pair.handle(), 0, ZMQ_POLLIN, 0},
-            {dealer.handle(), 0, ZMQ_POLLIN, 0},
-        };
-
         // Poll indefinitely
         zmq::poll(items, 2, std::chrono::milliseconds{-1});
 
