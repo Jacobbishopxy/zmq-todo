@@ -25,12 +25,14 @@ int main(int argc, char** argv)
     router.bind(EP);
     std::cout << "Router listening on " << EP << "..." << std::endl;
 
+#if 0
     while (true)
     {
         recv_multipart(router);
     }
+#endif
 
-#if 0
+#if 1
     while (true)
     {
         zmq::message_t identity;

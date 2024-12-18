@@ -36,16 +36,16 @@ void TodoBroker::run()
         auto p = m_router->recv(payload, zmq::recv_flags::none);
         std::cout << "TodoBroker recv: [from " << from_id.to_string() << "] [to " << to_id.to_string() << "]" << std::endl;
 
-        std::cout << "- " << from_id.to_string() << std::endl;
-        std::cout << "- " << to_id.to_string() << std::endl;
-        std::cout << "- " << action.to_string() << std::endl;
-        std::cout << "- " << payload.to_string() << std::endl;
+        // std::cout << "- " << from_id.to_string() << std::endl;
+        // std::cout << "- " << to_id.to_string() << std::endl;
+        // std::cout << "- " << action.to_string() << std::endl;
+        // std::cout << "- " << payload.to_string() << std::endl;
 
         m_router->send(to_id, zmq::send_flags::sndmore);
         m_router->send(from_id, zmq::send_flags::sndmore);
         m_router->send(action, zmq::send_flags::sndmore);
         m_router->send(payload, zmq::send_flags::none);
-        std::cout << "TodoBroker redirect: " << std::endl;
+        std::cout << "TodoBroker redirect: [from " << to_id.to_string() << "] [to " << from_id.to_string() << "]" << std::endl;
     }
 }
 
