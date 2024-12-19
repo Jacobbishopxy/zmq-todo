@@ -8,6 +8,7 @@
 #include <cstring>
 #include <iostream>
 #include <zmq.hpp>
+#include <zmq_addon.hpp>
 
 #include "common.hpp"
 
@@ -25,14 +26,22 @@ int main(int argc, char** argv)
     router.bind(EP);
     std::cout << "Router listening on " << EP << "..." << std::endl;
 
-#if 0
+#if 1
     while (true)
     {
-        recv_multipart(router);
+        std::vector<zmq::message_t> mm;
+        auto recv_r = zmq::recv_multipart(router, std::back_inserter(mm));
+
+        for (const auto& m : mm)
+            std::cout << "- " << m.to_string() << std::endl;
+        std::cout << std::endl;
+
+        router.send(mm[0], zmq::send_flags::sndmore);
+        router.send(zmq::buffer("hah"), zmq::send_flags::none);
     }
 #endif
 
-#if 1
+#if 0
     while (true)
     {
         zmq::message_t identity;

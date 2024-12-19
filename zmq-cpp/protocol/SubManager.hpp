@@ -119,7 +119,10 @@ private:
     void subLoop()
     {
         zmq::socket_t sub(m_context, zmq::socket_type::sub);
-        sub.connect(m_connect_addr);
+        if (m_is_bind)
+            sub.bind(m_connect_addr);
+        else
+            sub.connect(m_connect_addr);
 
         // Set subscription filter
         for (const auto& t : m_subscribed_topics)

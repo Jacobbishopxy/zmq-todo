@@ -7,6 +7,7 @@
 
 #include <iostream>
 #include <zmq.hpp>
+#include <zmq_addon.hpp>
 
 #include "common.hpp"
 
@@ -27,6 +28,21 @@ int main(int argc, char** argv)
 
     while (true)
     {
+        std::vector<zmq::message_t> mm;
+        auto recv_r = zmq::recv_multipart(subscriber, std::back_inserter(mm));
+
+        for (const auto& m : mm)
+            std::cout << "- " << m.to_string() << std::endl;
+        std::cout << std::endl;
+
+        // subscriber.send(mm[0], zmq::send_flags::sndmore);
+
+        // subscriber.send(zmq::buffer("hah"), zmq::send_flags::none);
+    }
+
+#if 0
+    while (true)
+    {
         // Receive the topic
         zmq::message_t topic;
         auto t = subscriber.recv(topic, zmq::recv_flags::none);
@@ -45,6 +61,7 @@ int main(int argc, char** argv)
         std::cout << "Received: [" << topic_text << "] " << message_text
                   << std::endl;
     }
+#endif
 
     return 0;
 }
