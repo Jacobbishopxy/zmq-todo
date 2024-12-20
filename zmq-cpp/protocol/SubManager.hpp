@@ -26,7 +26,7 @@ public:
           m_main_pair(m_context, zmq::socket_type::pair),
           m_running(false)
     {
-        m_inproc_addr = "inproc://dealer_manager";
+        m_inproc_addr = "inproc://sub_manager";
         m_is_bind = false;
     }
 
