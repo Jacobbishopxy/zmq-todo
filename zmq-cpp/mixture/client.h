@@ -8,14 +8,30 @@
 #ifndef __CLIENT__H__
 #define __CLIENT__H__
 
+#include <memory>
 #include <zmq.hpp>
 
+#include "ClientService.hpp"
 #include "adt.h"
+
+class TodoClient;
+
+class Receiver : public IReceiver
+{
+public:
+    void recvDealerMessage(const TodoResponse& message) override;
+    void recvSubMessage(const TodoStreamResponse& message) override;
+
+    void bindClient(TodoClient& client_ptr);
+
+private:
+    TodoClient* m_client_ptr;
+};
 
 class TodoClient
 {
 public:
-    TodoClient(const std::string& client_id, const std::string& connect_address);
+    TodoClient(const std::string& client_id, const std::string& connect_address, const std::string& sub_topic, const std::string& sub_address);
     ~TodoClient();
 
     std::vector<Todo> getAllTodo(const std::string& worker_id);
@@ -24,13 +40,11 @@ public:
     bool modifyTodo(const std::string& worker_id, const Todo& todo);
     bool deleteTodo(const std::string& worker_id, int id);
 
-protected:
-    std::shared_ptr<zmq::socket_t> getSocket();
+    void increaseMsgCount();
 
 private:
-    void sendRequest(TodoRequest& request);
-    TodoResponse receiveResponse();
-
+    std::shared_ptr<ClientService<Receiver>> m_service;
+    uint m_msg_count;
 };
 
 #endif  //!__CLIENT__H__

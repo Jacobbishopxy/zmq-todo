@@ -64,6 +64,7 @@ struct TodoRequest : ProtoMsgI, ProtoMsgO
     TodoAction action;
     RequestPayload payload;
 
+    TodoRequest(const std::string& worker_id, const TodoAction& action, const RequestPayload& payload);
     TodoRequest(const std::vector<zmq::message_t>& messages);
     std::vector<zmq::message_t> toZmq() const override;
 };

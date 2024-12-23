@@ -8,19 +8,20 @@
 #ifndef __DEALERSERVICE__H__
 #define __DEALERSERVICE__H__
 
+#include <stdexcept>
 #include <thread>
 #include <zmq_addon.hpp>
 
 #include "adt.h"
 
-struct IClient
+struct IReceiver
 {
     virtual void recvDealerMessage(const TodoResponse& message) = 0;
     virtual void recvSubMessage(const TodoStreamResponse& message) = 0;
 };
 
 template <typename T>
-concept IsClient = std::derived_from<T, IClient>;
+concept IsClient = std::derived_from<T, IReceiver>;
 
 template <class ClientType, typename BuilderPatternReturnType>
 struct ClientBuilder
@@ -36,27 +37,30 @@ struct ClientBuilder
     // register DealerType instance
     BuilderPatternReturnType&& registerApp(ClientType& spi)
     {
-        m_client_ptr = &spi;
+        m_client = std::move(spi);
         return std::move(static_cast<BuilderPatternReturnType&&>(*this));
     }
 
     // SPI point get method
-    [[nodiscard]] ClientType* getClientPtr() const noexcept
-    {
-        return m_client_ptr;
-    }
+    // [[nodiscard]] ClientType* getClientPtr() noexcept
+    // {
+    //     return m_client.has_value() ? &(*m_client) : nullptr;
+    // }
 
-private:
-    ClientType* m_client_ptr = nullptr;  // SPI interface pointer
+    // [[nodiscard]] const ClientType* getClientPtr() const noexcept
+    // {
+    //     return m_client.has_value() ? &(*m_client) : nullptr;
+    // }
+
+protected:
+    std::optional<ClientType> m_client;  // Holds the ClientType instance
 };
 
 template <IsClient T>
 class ClientService : public ClientBuilder<T, ClientService<T>>
 {
 public:
-    ClientService(
-        const std::string& dealer_address,
-        const std::string& sub_address)
+    ClientService(const std::string& dealer_address, const std::string& sub_address)
         : m_dealer_address(dealer_address),
           m_sub_address(sub_address),
           m_running(false)
@@ -82,7 +86,22 @@ public:
 
         m_running.store(true);
         m_main_pair.bind(m_inproc_addr);
-        m_dealer_thread = std::thread(&ClientService<T>::clientLoop, this);
+
+        if (this->m_client.has_value())
+        {
+            T client = std::move(this->m_client.value());
+            this->m_client.reset();
+
+            auto t = [this, client = std::move(client)]() mutable
+            {
+                this->clientLoop(client);
+            };
+            m_dealer_thread = std::thread(t);
+        }
+        else
+        {
+            throw std::runtime_error("Client is not initialized!");
+        }
     }
 
     void stop()
@@ -112,7 +131,7 @@ private:
     zmq::socket_t m_main_pair;
     std::thread m_dealer_thread;
 
-    void clientLoop()
+    void clientLoop(T client)
     {
         zmq::socket_t pair(m_context, zmq::socket_type::pair);
         pair.connect(m_inproc_addr);
@@ -123,13 +142,13 @@ private:
         zmq::socket_t sub(m_context, zmq::socket_type::sub);
         sub.connect(m_sub_address);
 
-        T client;
-
         zmq::pollitem_t items[] = {
             {pair.handle(), 0, ZMQ_POLLIN, 0},
             {dealer.handle(), 0, ZMQ_POLLIN, 0},
             {sub.handle(), 0, ZMQ_POLLIN, 0},
         };
+
+        // this->getClientPtr()
 
         while (m_running.load())
         {
