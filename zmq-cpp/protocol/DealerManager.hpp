@@ -112,7 +112,7 @@ private:
 
             if (items[0].revents & ZMQ_POLLIN)
             {
-                // PAIR receives msg from m_main_pair, forword to DEALER
+                // PAIR receives msg from m_main_pair, forward to DEALER
                 std::vector<zmq::message_t> mm;
                 auto recv_r = zmq::recv_multipart(pair, std::back_inserter(mm));
 

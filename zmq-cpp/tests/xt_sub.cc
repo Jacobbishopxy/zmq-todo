@@ -8,11 +8,6 @@
 #include "SubManager.hpp"
 #include "common.hpp"
 
-std::string messageToString(const zmq::message_t& msg)
-{
-    return std::string(static_cast<const char*>(msg.data()), msg.size());
-}
-
 uint messageToUint(const zmq::message_t& msg)
 {
     return *static_cast<const uint*>(msg.data());

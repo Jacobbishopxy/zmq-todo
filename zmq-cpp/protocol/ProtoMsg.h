@@ -10,6 +10,7 @@
 
 #include <zmq.hpp>
 
+// [zmq::message] -> T
 struct ProtoMsgI
 {
     ProtoMsgI(const std::vector<zmq::message_t>& messages){};
@@ -19,10 +20,10 @@ struct ProtoMsgI
 template <typename T>
 concept IsProtoMsgI = std::derived_from<T, ProtoMsgI>;
 
+// T -> [zmq::message]
 struct ProtoMsgO
 {
     virtual ~ProtoMsgO() = default;
-
     virtual std::vector<zmq::message_t> toZmq() const = 0;
 };
 

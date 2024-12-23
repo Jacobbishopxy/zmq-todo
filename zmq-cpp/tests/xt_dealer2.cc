@@ -32,11 +32,6 @@ struct MockOut : ProtoMsgO
     }
 };
 
-std::string messageToString(const zmq::message_t& msg)
-{
-    return std::string(static_cast<const char*>(msg.data()), msg.size());
-}
-
 struct MockIn : ProtoMsgI
 {
     std::string info;

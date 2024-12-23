@@ -113,4 +113,16 @@ inline void recv_multipart_print(zmq::socket_t& socket)
     }
 }
 
+inline std::string messageToString(const zmq::message_t& msg)
+{
+    return std::string(static_cast<const char*>(msg.data()), msg.size());
+}
+
+inline zmq::message_t stringToMessage(const std::string& str)
+{
+    zmq::message_t res(str.size());
+    memcpy(res.data(), str.data(), str.size());
+    return res;
+}
+
 #endif  //!__COMMON__H__
