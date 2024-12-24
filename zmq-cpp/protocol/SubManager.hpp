@@ -102,8 +102,9 @@ public:
         std::string topic(static_cast<char*>(fst.data()), fst.size());
 
         mm.erase(mm.begin());
+        I i(std::move(mm));
 
-        return std::make_tuple(topic, I(mm));
+        return std::make_tuple(topic, i);
     }
 
 private:

@@ -13,8 +13,9 @@
 // [zmq::message] -> T
 struct ProtoMsgI
 {
-    ProtoMsgI(const std::vector<zmq::message_t>& messages){};
-    virtual ~ProtoMsgI() = default;
+    ProtoMsgI() = default;
+    explicit ProtoMsgI(std::vector<zmq::message_t>&& messages);
+    // virtual ~ProtoMsgI() = default;
 };
 
 template <typename T>
@@ -23,8 +24,8 @@ concept IsProtoMsgI = std::derived_from<T, ProtoMsgI>;
 // T -> [zmq::message]
 struct ProtoMsgO
 {
-    virtual ~ProtoMsgO() = default;
     virtual std::vector<zmq::message_t> toZmq() const = 0;
+    // virtual ~ProtoMsgO() = default;
 };
 
 template <typename T>

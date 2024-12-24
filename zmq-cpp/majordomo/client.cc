@@ -82,7 +82,7 @@ bool TodoClient::createTodo(const std::string& worker_id, const Todo& todo)
         return std::get<bool>(rsp.payload);
     }
 
-    throw std::runtime_error("Unexpected response type for MODIFY");
+    throw std::runtime_error("Unexpected response type for CREATE");
 }
 
 bool TodoClient::modifyTodo(const std::string& worker_id, const Todo& todo)

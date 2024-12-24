@@ -13,13 +13,15 @@ uint messageToUint(const zmq::message_t& msg)
     return *static_cast<const uint*>(msg.data());
 }
 
-struct MockIn : ProtoMsgI
+struct MockIn : public ProtoMsgI
 {
     uint num;
     std::string desc;
 
-    MockIn(const std::vector<zmq::message_t>& messages)
-        : ProtoMsgI(messages)
+    MockIn(const uint num, const std::string& desc)
+        : num(num), desc(desc) {}
+
+    explicit MockIn(std::vector<zmq::message_t>&& messages)
     {
         if (!messages.empty())
         {
