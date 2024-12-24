@@ -42,9 +42,9 @@ zmq::message_t todo_action_to_message(TodoAction action)
 }
 
 // Convert zmq::message_t back to TodoAction
-TodoAction message_to_todo_action(const zmq::message_t& message)
+TodoAction message_to_todo_action(zmq::message_t& message)
 {
-    std::string action_str(static_cast<const char*>(message.data()), message.size());
+    std::string action_str(static_cast<char*>(message.data()), message.size());
 
     // Remove the last character if the string is not empty
     if (!action_str.empty())
@@ -116,8 +116,13 @@ std::vector<Todo> from_json(const json& j)
 // 3. TodoStreamResponse
 // ================================================================================================
 
-TodoRequest::TodoRequest(const std::vector<zmq::message_t>& messages)
-    : ProtoMsgI(messages)
+TodoRequest::TodoRequest(
+    const std::string& worker_id,
+    const TodoAction& action,
+    const RequestPayload& payload)
+    : worker_id(worker_id), action(action), payload(payload) {}
+
+TodoRequest::TodoRequest(std::vector<zmq::message_t>&& messages)
 {
     // 1. worker_id
     worker_id = messageToString(messages[0]);
@@ -149,6 +154,8 @@ TodoRequest::TodoRequest(const std::vector<zmq::message_t>& messages)
     {
         payload = EmptyPayload{};
     }
+
+    // return *this;
 }
 
 std::vector<zmq::message_t> TodoRequest::toZmq() const
@@ -185,8 +192,7 @@ std::vector<zmq::message_t> TodoRequest::toZmq() const
     return messages;
 }
 
-TodoResponse::TodoResponse(const std::vector<zmq::message_t>& messages)
-    : ProtoMsgI(messages)
+TodoResponse::TodoResponse(std::vector<zmq::message_t>&& messages)
 {
     // 1. client_id
     client_id = messageToString(messages[0]);
@@ -204,6 +210,8 @@ TodoResponse::TodoResponse(const std::vector<zmq::message_t>& messages)
         payload = responseJson.get<bool>();
     else
         payload = Todo::from_json(responseJson);
+
+    // return *this;
 }
 
 std::vector<zmq::message_t> TodoResponse::toZmq() const
@@ -244,14 +252,15 @@ std::vector<zmq::message_t> TodoResponse::toZmq() const
     return messages;
 }
 
-TodoStreamResponse::TodoStreamResponse(const std::vector<zmq::message_t>& messages)
-    : ProtoMsgI(messages)
+TodoStreamResponse::TodoStreamResponse(std::vector<zmq::message_t>&& messages)
 {
     // 1. topic
     topic = messageToString(messages[0]);
 
     // 2. info
     info = messageToString(messages[1]);
+
+    // return *this;
 }
 
 std::vector<zmq::message_t> TodoStreamResponse::toZmq() const
