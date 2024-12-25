@@ -45,7 +45,6 @@ void TodoBroker::run()
         m_router->send(from_id, zmq::send_flags::sndmore);
         m_router->send(action, zmq::send_flags::sndmore);
         m_router->send(payload, zmq::send_flags::none);
-        std::cout << "TodoBroker redirect: [from " << to_id.to_string() << "] [to " << from_id.to_string() << "]" << std::endl;
     }
 }
 

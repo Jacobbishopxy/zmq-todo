@@ -63,7 +63,7 @@ void TodoWorker::run()
         std::string client_id(static_cast<char*>(clientFrame.data()), clientFrame.size());
 
         // Parse the action
-        TodoAction action = message_to_todo_action(actionFrame);
+        TodoAction action = messageToTodoAction(actionFrame);
 
         // Parse the payload
         RequestPayload payload;
@@ -217,7 +217,7 @@ void TodoWorker::sendResponse(const TodoResponse& response)
     memcpy(client_id.data(), response.client_id.data(), response.client_id.size());
     m_worker_socket->send(client_id, zmq::send_flags::sndmore);
 
-    zmq::message_t action = todo_action_to_message(response.action);
+    zmq::message_t action = todoActionTomessage(response.action);
     m_worker_socket->send(action, zmq::send_flags::sndmore);
 
     json responseJson;

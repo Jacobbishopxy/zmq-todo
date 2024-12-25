@@ -69,7 +69,7 @@ void TodoWorker::run()
         zmq::message_t& payloadFrame = frames[4];
 
         // Parse the action
-        TodoAction action = message_to_todo_action(actionFrame);
+        TodoAction action = messageToTodoAction(actionFrame);
 
         // Parse the payload
         TodoRequest payload;
@@ -191,7 +191,7 @@ void TodoWorker::sendResponse(TodoAction action, const TodoResponse& response, c
     m_worker_socket->send(delimiter, zmq::send_flags::sndmore);
 
     // Send action
-    zmq::message_t actionFrame = todo_action_to_message(action);
+    zmq::message_t actionFrame = todoActionTomessage(action);
     m_worker_socket->send(actionFrame, zmq::send_flags::sndmore);
 
     // Send response payload as JSON

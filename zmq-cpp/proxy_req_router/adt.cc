@@ -10,7 +10,7 @@
 #include <unordered_map>
 
 // Convert TodoAction to zmq::message_t
-zmq::message_t todo_action_to_message(TodoAction action)
+zmq::message_t todoActionTomessage(TodoAction action)
 {
     static const std::unordered_map<TodoAction, std::string> action_to_string = {
         {TodoAction::GET_ALL, "GET_ALL"},
@@ -39,7 +39,7 @@ zmq::message_t todo_action_to_message(TodoAction action)
 }
 
 // Convert zmq::message_t back to TodoAction
-TodoAction message_to_todo_action(zmq::message_t& message)
+TodoAction messageToTodoAction(zmq::message_t& message)
 {
     std::string action_str(static_cast<char*>(message.data()), message.size());
 

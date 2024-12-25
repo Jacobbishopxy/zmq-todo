@@ -74,7 +74,7 @@ int main(int argc, char** argv)
     dealer.send(request, zmq::send_flags::none);
     std::cout << "Sent request: " << request_text << std::endl;
 
-    recv_multipart_print(dealer);
+    recvMultipartPrint(dealer);
 
     return 0;
 }

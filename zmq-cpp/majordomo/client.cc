@@ -132,7 +132,7 @@ void TodoClient::sendRequest(TodoRequest& request)
     m_client_socket->send(worker_id_msg, zmq::send_flags::sndmore);
 
     // send action
-    zmq::message_t action_msg = todo_action_to_message(request.action);
+    zmq::message_t action_msg = todoActionTomessage(request.action);
     m_client_socket->send(action_msg, zmq::send_flags::sndmore);
 
     // send payload
@@ -159,7 +159,7 @@ TodoResponse TodoClient::receiveResponse()
 {
     // [client_id][action][response_payload]
 
-    std::cout << "TodoClient::receiveResponse start: " << std::endl;
+    std::cout << "TodoClient::receiveResponse start" << std::endl;
 
     // client_id
     zmq::message_t client_id_msg;
@@ -169,7 +169,7 @@ TodoResponse TodoClient::receiveResponse()
     // action
     zmq::message_t action_msg;
     auto a = m_client_socket->recv(action_msg, zmq::recv_flags::none);
-    auto action = message_to_todo_action(action_msg);
+    auto action = messageToTodoAction(action_msg);
 
     // payload
     zmq::message_t payload_msg;
@@ -185,7 +185,7 @@ TodoResponse TodoClient::receiveResponse()
     else
         payload = Todo::from_json(responseJson);
 
-    std::cout << "TodoClient::receiveResponse done: " << std::endl;
+    std::cout << "TodoClient::receiveResponse done" << std::endl;
 
     return TodoResponse{
         .client_id = client_id,
@@ -255,6 +255,7 @@ int main(int argc, char** argv)
         if (actionArg == "GET_ALL")
         {
             auto todos = client.getAllTodo(workerArg);
+            std::cout << "GET_ALL todos.size: " << todos.size() << std::endl;
             for (const auto& todo : todos)
             {
                 std::cout << "ID: " << todo.id

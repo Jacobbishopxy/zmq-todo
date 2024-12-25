@@ -29,10 +29,10 @@ enum class TodoAction
 };
 
 // Convert TodoAction to zmq::message_t
-zmq::message_t todo_action_to_message(TodoAction action);
+zmq::message_t todoActionTomessage(TodoAction action);
 
 // Convert zmq::message_t back to TodoAction
-TodoAction message_to_todo_action(zmq::message_t& message);
+TodoAction messageToTodoAction(zmq::message_t& message);
 
 struct Todo
 {

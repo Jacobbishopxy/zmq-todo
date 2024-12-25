@@ -5,8 +5,6 @@
  * @brief:
  **/
 
-#include <random>
-
 #include "PubManager.hpp"
 #include "common.hpp"
 
@@ -34,25 +32,6 @@ struct MockOut : ProtoMsgO
     }
 };
 
-// Function to generate random string
-std::string generateRandomString(size_t length)
-{
-    const std::string charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-    std::string result;
-    result.resize(length);
-
-    std::random_device rd;
-    std::mt19937 gen(rd());
-    std::uniform_int_distribution<> dis(0, charset.size() - 1);
-
-    for (size_t i = 0; i < length; ++i)
-    {
-        result[i] = charset[dis(gen)];
-    }
-
-    return result;
-}
-
 // Function to generate random MockOut
 MockOut generateRandomMockOut()
 {
@@ -71,21 +50,6 @@ MockOut generateRandomMockOut()
     return MockOut{num, desc};
 }
 
-void randomSleep()
-{
-    // Randomly generate sleep time between 0 and 5 seconds
-    std::random_device rd;
-    std::mt19937 gen(rd());
-    std::uniform_int_distribution<int> dis(0, 5);  // Sleep time between 0 and 5 seconds
-
-    int sleep_duration = dis(gen);
-
-    std::cout << "Sleeping for " << sleep_duration << " seconds...\n";
-
-    // Sleep for the generated duration
-    std::this_thread::sleep_for(std::chrono::seconds(sleep_duration));
-}
-
 int main(int argc, char** argv)
 {
     zmq::context_t context(1);
@@ -97,7 +61,7 @@ int main(int argc, char** argv)
 
     while (true)
     {
-        randomSleep();
+        randomSleep(5);
         MockOut mock = generateRandomMockOut();
         std::cout << "num: " << mock.num << ", desc: " << mock.desc << std::endl;
         myPub.publishMessage(mock);

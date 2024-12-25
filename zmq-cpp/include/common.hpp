@@ -9,6 +9,7 @@
 #define __COMMON__H__
 
 #include <iostream>
+#include <random>
 #include <string>
 #include <thread>
 #include <zmq.hpp>
@@ -67,7 +68,7 @@ public:
     }
 };
 
-inline std::vector<zmq::message_t> recv_multipart(zmq::socket_t& socket)
+inline std::vector<zmq::message_t> recvMultipart(zmq::socket_t& socket)
 {
     std::vector<zmq::message_t> ans;
 
@@ -84,7 +85,7 @@ inline std::vector<zmq::message_t> recv_multipart(zmq::socket_t& socket)
     return ans;
 }
 
-inline void send_multipart(zmq::socket_t& socket, std::vector<zmq::message_t>& messages)
+inline void sendMultipart(zmq::socket_t& socket, std::vector<zmq::message_t>& messages)
 {
     for (size_t i = 0; i < messages.size(); ++i)
     {
@@ -94,7 +95,7 @@ inline void send_multipart(zmq::socket_t& socket, std::vector<zmq::message_t>& m
     }
 }
 
-inline void recv_multipart_print(zmq::socket_t& socket)
+inline void recvMultipartPrint(zmq::socket_t& socket)
 {
     zmq::message_t message;
 
@@ -123,6 +124,59 @@ inline zmq::message_t stringToMessage(const std::string& str)
     zmq::message_t res(str.size());
     memcpy(res.data(), str.data(), str.size());
     return res;
+}
+
+// Function to generate random string
+inline std::string generateRandomString(size_t length)
+{
+    const std::string charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    std::string result;
+    result.resize(length);
+
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<> dis(0, charset.size() - 1);
+
+    for (size_t i = 0; i < length; ++i)
+    {
+        result[i] = charset[dis(gen)];
+    }
+
+    return result;
+}
+
+inline void randomSleep(int max_seconds)
+{
+    // Randomly generate sleep time between 0 and 5 seconds
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<int> dis(0, max_seconds);  // Sleep time between 0 and 5 seconds
+
+    int sleep_duration = dis(gen);
+
+    // Sleep for the generated duration
+    std::this_thread::sleep_for(std::chrono::seconds(sleep_duration));
+}
+
+inline std::string getCurrentDateTime()
+{
+    // Get the current time
+    std::time_t now = std::time(nullptr);
+
+    // Convert to local time
+    std::tm localTime;
+#ifdef _WIN32
+    // Windows-specific
+    localtime_s(&localTime, &now);
+#else
+    // POSIX-compliant
+    localtime_r(&now, &localTime);
+#endif
+
+    // Format the time as a string
+    std::ostringstream oss;
+    oss << std::put_time(&localTime, "%Y-%m-%d %H:%M:%S");
+    return oss.str();
 }
 
 #endif  //!__COMMON__H__

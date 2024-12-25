@@ -106,7 +106,7 @@ bool TodoClient::deleteTodo(int id)
 void TodoClient::sendRequest(TodoAction action, TodoRequest& payload)
 {
     // Send action
-    zmq::message_t actionMsg = todo_action_to_message(action);
+    zmq::message_t actionMsg = todoActionTomessage(action);
     m_client_socket->send(actionMsg, zmq::send_flags::sndmore);
 
     // Send payload
@@ -135,7 +135,7 @@ TodoResponse TodoClient::receiveResponse()
     // action
     zmq::message_t actionMsg;
     auto a = m_client_socket->recv(actionMsg, zmq::recv_flags::none);
-    auto action = message_to_todo_action(actionMsg);
+    auto action = messageToTodoAction(actionMsg);
 
     // payload
     zmq::message_t responseMsg;
