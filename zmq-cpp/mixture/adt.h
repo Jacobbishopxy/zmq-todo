@@ -68,10 +68,7 @@ struct TodoRequest : public ProtoMsgI, ProtoMsgO
         const std::string& worker_id,
         const TodoAction& action,
         const RequestPayload& payload);
-    // TodoRequest& operator=(std::vector<zmq::message_t>&& messages);
     explicit TodoRequest(std::vector<zmq::message_t>&& messages);
-    // TodoRequest(TodoRequest&& other) noexcept = default;
-    // TodoRequest(const TodoRequest& other) = default;
 
     std::vector<zmq::message_t> toZmq() const override;
 };
@@ -86,27 +83,20 @@ struct TodoResponse : public ProtoMsgI, ProtoMsgO
         const std::string& client_id,
         const TodoAction& action,
         const ResponsePayload& payload);
-    // TodoResponse& operator=(std::vector<zmq::message_t>&& messages);
     explicit TodoResponse(std::vector<zmq::message_t>&& messages);
-    // TodoResponse(TodoResponse&& other) noexcept = default;
-    // TodoResponse(const TodoResponse& other) = default;
 
     std::vector<zmq::message_t> toZmq() const override;
-
 };
 
 struct TodoStreamResponse : public ProtoMsgI, ProtoMsgO
 {
-    std::string topic;
     std::string info;
+    std::string time;
 
     TodoStreamResponse(
-        const std::string& topic,
-        const std::string& info);
-    // TodoStreamResponse& operator=(std::vector<zmq::message_t>&& messages);
+        const std::string& info,
+        const std::string& time);
     explicit TodoStreamResponse(std::vector<zmq::message_t>&& messages);
-    // TodoStreamResponse(TodoStreamResponse&& other) noexcept = default;
-    // TodoStreamResponse(const TodoStreamResponse& other) = default;
 
     std::vector<zmq::message_t> toZmq() const override;
 };

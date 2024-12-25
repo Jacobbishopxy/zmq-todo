@@ -154,8 +154,6 @@ TodoRequest::TodoRequest(std::vector<zmq::message_t>&& messages)
     {
         payload = EmptyPayload{};
     }
-
-    // return *this;
 }
 
 std::vector<zmq::message_t> TodoRequest::toZmq() const
@@ -210,8 +208,6 @@ TodoResponse::TodoResponse(std::vector<zmq::message_t>&& messages)
         payload = responseJson.get<bool>();
     else
         payload = Todo::from_json(responseJson);
-
-    // return *this;
 }
 
 std::vector<zmq::message_t> TodoResponse::toZmq() const
@@ -254,26 +250,24 @@ std::vector<zmq::message_t> TodoResponse::toZmq() const
 
 TodoStreamResponse::TodoStreamResponse(std::vector<zmq::message_t>&& messages)
 {
-    // 1. topic
-    topic = messageToString(messages[0]);
+    // 1. info
+    info = messageToString(messages[0]);
 
-    // 2. info
-    info = messageToString(messages[1]);
-
-    // return *this;
+    // 2. time
+    time = messageToString(messages[1]);
 }
 
 std::vector<zmq::message_t> TodoStreamResponse::toZmq() const
 {
     std::vector<zmq::message_t> messages;
 
-    // 1. topic
-    zmq::message_t topicFrame = stringToMessage(topic);
-    messages.emplace_back(std::move(topicFrame));
-
-    // 2. info
+    // 1. info
     zmq::message_t infoFrame = stringToMessage(info);
     messages.emplace_back(std::move(infoFrame));
+
+    // 2. time
+    zmq::message_t timeFrame = stringToMessage(time);
+    messages.emplace_back(std::move(timeFrame));
 
     return messages;
 }

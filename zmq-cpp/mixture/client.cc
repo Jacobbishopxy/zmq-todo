@@ -39,7 +39,7 @@ TodoClient::TodoClient(
     Receiver r;
     r.bindClient(this);
     // register Receiver
-    this->m_service->registerApp(r);
+    this->m_service->registerReceiver(r);
     this->m_service->start();
 }
 
