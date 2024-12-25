@@ -175,31 +175,46 @@ private:
         {
             zmq::poll(items, 2);
 
-            // PAIR forward to external ROUTER/PUB
-            std::vector<zmq::message_t> mm;
-            auto recv_r = zmq::recv_multipart(pair, std::back_inserter(mm));
-
-            // quit this event loop
-            if (mm.size() == 1)
+            // PAIR receives msg from m_main_pair
+            if (items[0].revents && ZMQ_POLLIN)
             {
-                std::string sig = messageToString(mm[0]);
-                if (sig == "STOP!\0")
-                    break;
+                // PAIR forward to external ROUTER/PUB
+                std::vector<zmq::message_t> mm;
+                auto recv_r = zmq::recv_multipart(pair, std::back_inserter(mm));
+
+                // quit this event loop
+                if (mm.size() == 1)
+                {
+                    std::string sig = messageToString(mm[0]);
+                    if (sig == "STOP!\0")
+                        break;
+                }
+
+                // size == 2 --> TodoStreamResponse, pub message
+                if (mm.size() == 2)
+                {
+                    // add zmq topic
+                    zmq::message_t topic(m_pub_topic.size());
+                    memcpy(topic.data(), m_pub_topic.data(), m_pub_topic.size());
+                    pub.send(topic, zmq::send_flags::sndmore);
+                    zmq::send_multipart(pub, mm);
+                }
+
+                // size == 3 --> TodoResponse, dealer message
+                if (mm.size() == 3)
+                    zmq::send_multipart(dealer, mm);
             }
 
-            // size == 2 --> TodoStreamResponse, pub message
-            if (mm.size() == 2)
+            // DEALER receives msg from external ROUTER
+            if (items[1].revents && ZMQ_POLLIN)
             {
-                // add zmq topic
-                zmq::message_t topic(m_pub_topic.size());
-                memcpy(topic.data(), m_pub_topic.data(), m_pub_topic.size());
-                pub.send(topic, zmq::send_flags::sndmore);
-                zmq::send_multipart(pub, mm);
+                std::vector<zmq::message_t> mm;
+                auto recv_r = zmq::recv_multipart(dealer, std::back_inserter(mm));
+                // zmq -> adt
+                TodoRequest req(std::move(mm));
+                // processor SPI
+                processor.recvDealerMessage(req);
             }
-
-            // size == 3 --> TodoResponse, dealer message
-            if (mm.size() == 3)
-                zmq::send_multipart(dealer, mm);
         }
     }
 };

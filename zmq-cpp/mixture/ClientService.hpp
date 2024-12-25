@@ -203,7 +203,7 @@ private:
                 zmq::send_multipart(dealer, mm);
             }
 
-            // dealer receives msg from external router
+            // DEALER receives msg from external ROUTER
             if (items[1].revents && ZMQ_POLLIN)
             {
                 std::vector<zmq::message_t> mm;
@@ -213,7 +213,7 @@ private:
                 zmq::send_multipart(pair, mm);
             }
 
-            // sub receives msg from external pub
+            // SUB receives msg from external PUB
             if (items[2].revents && ZMQ_POLLIN)
             {
                 std::vector<zmq::message_t> mm;
@@ -222,7 +222,7 @@ private:
                 mm.erase(mm.begin());
                 // zmq -> adt
                 TodoStreamResponse rsp(std::move(mm));
-                // client SPI
+                // receiver SPI
                 receiver.recvSubMessage(rsp);
             }
         }
