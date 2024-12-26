@@ -273,7 +273,7 @@ int main(int argc, char** argv)
     {
         // Create and run the worker
         TodoWorker worker(workerArg, EP);
-        std::cout << "Worker started and connected to " << BackendEP << "\n";
+        std::cout << "Worker started and connected to " << EP << "\n";
         worker.run();
     }
     catch (const std::exception& e)

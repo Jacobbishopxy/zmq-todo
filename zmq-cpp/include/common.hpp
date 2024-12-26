@@ -119,7 +119,19 @@ inline std::string messageToString(const zmq::message_t& msg)
     return std::string(static_cast<const char*>(msg.data()), msg.size());
 }
 
+inline std::string messageToString(zmq::message_t& msg)
+{
+    return std::string(static_cast<char*>(msg.data()), msg.size());
+}
+
 inline zmq::message_t stringToMessage(const std::string& str)
+{
+    zmq::message_t res(str.size());
+    memcpy(res.data(), str.data(), str.size());
+    return res;
+}
+
+inline zmq::message_t stringToMessage(std::string& str)
 {
     zmq::message_t res(str.size());
     memcpy(res.data(), str.data(), str.size());
