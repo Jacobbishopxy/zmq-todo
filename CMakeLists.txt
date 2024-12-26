@@ -25,6 +25,13 @@ link_directories("${SPDLOG_ROOT}/lib")
 set(ZMQ_VERSION 4.10.0)
 find_package(cppzmq PATHS "/opt/qi-deps/cppzmq-${ZMQ_VERSION}")
 
+# uws
+set(UWS_VERSION 20.71.0)
+set(UWS_DIR "/opt/qi-deps/uWebSockets-${UWS_VERSION}")
+include_directories("${UWS_DIR}/include")
+link_directories("${UWS_DIR}/lib")
+set(LIB_UWEBSOCKETS uSockets z)
+
 # ================================================================================================
 # Dirs
 # ================================================================================================

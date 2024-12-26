@@ -19,4 +19,10 @@
 ./build/zmq-cpp/mixture/x_client --client_id=my_client --worker_id=my_worker --action=MODIFY \
   --payload='{"id": 0, "description": "test zmq!", "completed": true}'
 
+./build/zmq-cpp/mixture/x_client --client_id=my_client --worker_id=my_worker --action=DELETE \
+  --payload=0
+
+# client Http
+./build/zmq-cpp/mixture/x_client_http --client_id=my_client --worker_id=my_worker
+
 ```

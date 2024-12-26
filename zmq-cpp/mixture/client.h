@@ -8,7 +8,6 @@
 #ifndef __CLIENT__H__
 #define __CLIENT__H__
 
-#include <memory>
 #include <zmq.hpp>
 
 #include "ClientService.hpp"

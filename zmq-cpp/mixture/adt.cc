@@ -79,6 +79,13 @@ TodoAction messageToTodoAction(zmq::message_t& message)
     }
 }
 
+void from_json(const nlohmann::json& j, Todo& d)
+{
+    j.at("id").get_to(d.id);
+    j.at("description").get_to(d.description);
+    j.at("completed").get_to(d.completed);
+}
+
 // Converts a Todo object to JSON
 void Todo::to_json(json& j) const
 {
@@ -298,4 +305,12 @@ std::vector<zmq::message_t> TodoStreamResponse::toZmq() const
     messages.emplace_back(std::move(timeFrame));
 
     return messages;
+}
+
+void to_json(nlohmann::json& j, const TodoStreamResponse& d)
+{
+    j = json{
+        {"info", d.info},
+        {"time", d.time},
+    };
 }

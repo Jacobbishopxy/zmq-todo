@@ -13,10 +13,10 @@
 
 void Processor::recvDealerMessage(const TodoRequest& request)
 {
-    std::cout << "Processor::recvDealerMessage: "
-        << request.worker_id << " . "
-        << todoActionToString(request.action)
-        << std::endl;
+    // std::cout << "Processor::recvDealerMessage: "
+    //     << request.worker_id << " . "
+    //     << todoActionToString(request.action)
+    //     << std::endl;
 
     // receive a TodoRequest, handle biz logic, send a TodoResponse
     auto rsp = this->m_worker_ptr->handleRequest(request);
@@ -86,9 +86,9 @@ void TodoWorker::run()
 
 TodoResponse TodoWorker::handleRequest(const TodoRequest& request)
 {
-    std::cout << "TodoWorker::handleRequest: [client_id]: "
-              << request.worker_id << ", [action]: "
-              << todoActionToString(request.action) << std::endl;
+    // std::cout << "TodoWorker::handleRequest: [client_id]: "
+    //           << request.worker_id << ", [action]: "
+    //           << todoActionToString(request.action) << std::endl;
 
     switch (request.action)
     {
@@ -144,18 +144,17 @@ TodoResponse TodoWorker::handleRequest(const TodoRequest& request)
 
 void TodoWorker::sendResponse(const TodoResponse& response)
 {
-    std::cout << "TodoWorker::sendResponse: [client_id]: "
-              << response.client_id << ", [action]: "
-              << todoActionToString(response.action) << std::endl;
-
+    // std::cout << "TodoWorker::sendResponse: [client_id]: "
+    //           << response.client_id << ", [action]: "
+    //           << todoActionToString(response.action) << std::endl;
     this->m_service->sendMessage(response);
 }
 
 void TodoWorker::pubInfo(const TodoStreamResponse& response)
 {
-    std::cout << "TodoWorker::pubInfo: [info]: "
-              << response.info << ", [time]: "
-              << response.time << std::endl;
+    // std::cout << "TodoWorker::pubInfo: [info]: "
+    //           << response.info << ", [time]: "
+    //           << response.time << std::endl;
     this->m_service->pubMessage(response);
 }
 

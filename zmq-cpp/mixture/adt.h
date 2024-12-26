@@ -46,6 +46,8 @@ struct Todo
     static Todo from_json(const json& j);
 };
 
+void from_json(const nlohmann::json& j, Todo& d);
+
 // Serializes a vector of Todo objects to JSON
 json to_json(const std::vector<Todo>& todos);
 
@@ -102,5 +104,7 @@ struct TodoStreamResponse : public ProtoMsgI, ProtoMsgO
 
     std::vector<zmq::message_t> toZmq() const override;
 };
+
+void to_json(nlohmann::json& j, const TodoStreamResponse& d);
 
 #endif  //!__ADT__H__

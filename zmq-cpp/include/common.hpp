@@ -14,6 +14,7 @@
 #include <thread>
 #include <zmq.hpp>
 
+
 const std::string EP = "tcp://127.0.0.1:5555";
 const std::string EP2 = "tcp://127.0.0.1:5556";
 
@@ -189,6 +190,14 @@ inline std::string getCurrentDateTime()
     std::ostringstream oss;
     oss << std::put_time(&localTime, "%Y-%m-%d %H:%M:%S");
     return oss.str();
+}
+
+inline std::string getTid()
+{
+    std::stringstream ss;
+    auto tid = std::this_thread::get_id();
+    ss << tid;
+    return ss.str();
 }
 
 #endif  //!__COMMON__H__
