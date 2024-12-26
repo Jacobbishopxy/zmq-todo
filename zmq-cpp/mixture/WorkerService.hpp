@@ -160,6 +160,8 @@ private:
         dealer.set(zmq::sockopt::sndtimeo, 2000);
         // recv timeout
         dealer.set(zmq::sockopt::rcvtimeo, 2000);
+        // connect
+        dealer.connect(m_router_address);
 
         zmq::socket_t pub(m_context, zmq::socket_type::pub);
         pub.connect(m_pub_address);
@@ -178,6 +180,7 @@ private:
             // PAIR receives msg from m_main_pair
             if (items[0].revents && ZMQ_POLLIN)
             {
+                // std::cout << "eventLoop.pair.recv_multipart" << std::endl;
                 // PAIR forward to external ROUTER/PUB
                 std::vector<zmq::message_t> mm;
                 auto recv_r = zmq::recv_multipart(pair, std::back_inserter(mm));
@@ -193,6 +196,7 @@ private:
                 // size == 2 --> TodoStreamResponse, pub message
                 if (mm.size() == 2)
                 {
+                    // std::cout << "eventLoop.pub.send_multipart" << std::endl;
                     // add zmq topic
                     zmq::message_t topic(m_pub_topic.size());
                     memcpy(topic.data(), m_pub_topic.data(), m_pub_topic.size());
@@ -202,12 +206,16 @@ private:
 
                 // size == 3 --> TodoResponse, dealer message
                 if (mm.size() == 3)
+                {
+                    // std::cout << "eventLoop.dealer.send_multipart" << std::endl;
                     zmq::send_multipart(dealer, mm);
+                }
             }
 
             // DEALER receives msg from external ROUTER
             if (items[1].revents && ZMQ_POLLIN)
             {
+                // std::cout << "eventLoop.dealer.recv_multipart" << std::endl;
                 std::vector<zmq::message_t> mm;
                 auto recv_r = zmq::recv_multipart(dealer, std::back_inserter(mm));
                 // zmq -> adt

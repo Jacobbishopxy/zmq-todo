@@ -62,8 +62,10 @@ public:
         m_sub_address = sub_address;
         m_running = false;
         m_context = zmq::context_t(1);
-        m_main_pair = zmq::socket_t(m_context, zmq::socket_type::pair);
-        m_inproc_addr = "inproc://client_service";
+        m_main_pair_i = zmq::socket_t(m_context, zmq::socket_type::pair);
+        m_main_pair_o = zmq::socket_t(m_context, zmq::socket_type::pair);
+        m_inproc_addr_i = "inproc://client_service_i";
+        m_inproc_addr_o = "inproc://client_service_o";
     }
 
     ~ClientService()
@@ -82,11 +84,14 @@ public:
 
         m_running.store(true);
         // send timeout
-        m_main_pair.set(zmq::sockopt::sndtimeo, 2000);
+        m_main_pair_i.set(zmq::sockopt::sndtimeo, 2000);
+        m_main_pair_o.set(zmq::sockopt::sndtimeo, 2000);
         // recv timeout
-        m_main_pair.set(zmq::sockopt::rcvtimeo, 2000);
+        m_main_pair_i.set(zmq::sockopt::rcvtimeo, 2000);
+        m_main_pair_o.set(zmq::sockopt::rcvtimeo, 2000);
         // bind inproc address
-        m_main_pair.bind(m_inproc_addr);
+        m_main_pair_i.bind(m_inproc_addr_i);
+        m_main_pair_o.bind(m_inproc_addr_o);
 
         if (this->m_receiver.has_value())
         {
@@ -114,7 +119,7 @@ public:
             return;
 
         m_running.store(false);
-        m_main_pair.send(zmq::str_buffer("STOP!"), zmq::send_flags::none);
+        m_main_pair_o.send(zmq::str_buffer("STOP!"), zmq::send_flags::none);
 
         if (m_event_thread.joinable())
             m_event_thread.join();
@@ -122,17 +127,22 @@ public:
 
     void sendMessage(const TodoRequest& message)
     {
-        // send message via m_main_pair to dealer (cross threads)
+        // send message via m_main_pair_o to dealer (cross threads)
         auto zmq_messages = message.toZmq();
-        zmq::send_multipart(m_main_pair, zmq_messages);
+        zmq::send_multipart(m_main_pair_o, zmq_messages);
     }
 
-    TodoResponse recvMessage()
+    std::optional<TodoResponse> recvMessage()
     {
-        // recv message via m_main_pair from dealer (cross threads)
+        // recv message via m_main_pair_i from dealer (cross threads)
         std::vector<zmq::message_t> mm;
-        auto recv_r = zmq::recv_multipart(m_main_pair, std::back_inserter(mm));
-
+        auto recv_r = zmq::recv_multipart(m_main_pair_i, std::back_inserter(mm));
+        // check message
+        if (mm.size() <= 1)
+        {
+            std::cerr << "Invalid message from ROUTER" << std::endl;
+            return std::nullopt;
+        }
         TodoResponse rsp(std::move(mm));
         return rsp;
     }
@@ -142,20 +152,26 @@ public:
     // ================================================================================================
 
 private:
-    std::string m_inproc_addr;
+    std::string m_inproc_addr_i;
+    std::string m_inproc_addr_o;
     std::string m_client_id;
     std::string m_router_address;
     std::string m_sub_topic;
     std::string m_sub_address;
     zmq::context_t m_context;
     std::atomic<bool> m_running;
-    zmq::socket_t m_main_pair;
+    zmq::socket_t m_main_pair_i;
+    zmq::socket_t m_main_pair_o;
     std::thread m_event_thread;
 
     void eventLoop(T receiver)
     {
-        zmq::socket_t pair(m_context, zmq::socket_type::pair);
-        pair.connect(m_inproc_addr);
+        // handle: DEALER -> m_main_pair
+        zmq::socket_t pair_i(m_context, zmq::socket_type::pair);
+        pair_i.connect(m_inproc_addr_i);
+        // handle: m_main_pair -> DEALER
+        zmq::socket_t pair_o(m_context, zmq::socket_type::pair);
+        pair_o.connect(m_inproc_addr_o);
 
         zmq::socket_t dealer(m_context, zmq::socket_type::dealer);
         // dealer_id
@@ -175,7 +191,7 @@ private:
 
         // register events
         zmq::pollitem_t items[] = {
-            {pair.handle(), 0, ZMQ_POLLIN, 0},
+            {pair_o.handle(), 0, ZMQ_POLLIN, 0},
             {dealer.handle(), 0, ZMQ_POLLIN, 0},
             {sub.handle(), 0, ZMQ_POLLIN, 0},
         };
@@ -185,12 +201,12 @@ private:
         {
             zmq::poll(items, 3);
 
-            // PAIR receives msg from m_main_pair
+            // PAIR(o) receives msg from m_main_pair_o
             if (items[0].revents && ZMQ_POLLIN)
             {
                 // PAIR forward to external ROUTER
                 std::vector<zmq::message_t> mm;
-                auto recv_r = zmq::recv_multipart(pair, std::back_inserter(mm));
+                auto recv_r = zmq::recv_multipart(pair_o, std::back_inserter(mm));
 
                 // quit this event loop
                 if (mm.size() == 1)
@@ -206,18 +222,24 @@ private:
             // DEALER receives msg from external ROUTER
             if (items[1].revents && ZMQ_POLLIN)
             {
+                // DEALER recv msg
                 std::vector<zmq::message_t> mm;
                 auto recv_r = zmq::recv_multipart(dealer, std::back_inserter(mm));
-
-                // send back to m_main_pair
-                zmq::send_multipart(pair, mm);
+                // forward to m_main_pair_i
+                zmq::send_multipart(pair_i, mm);
             }
 
             // SUB receives msg from external PUB
             if (items[2].revents && ZMQ_POLLIN)
             {
                 std::vector<zmq::message_t> mm;
-                auto recv_r = zmq::recv_multipart(dealer, std::back_inserter(mm));
+                auto recv_r = zmq::recv_multipart(sub, std::back_inserter(mm));
+                // check message
+                if (mm.size() <= 1)
+                {
+                    std::cerr << "Invalid message from PUB" << std::endl;
+                    continue;
+                }
                 // pop out the first element, which is the topic name
                 mm.erase(mm.begin());
                 // zmq -> adt

@@ -16,6 +16,9 @@ class TodoClient;
 
 void Receiver::recvSubMessage(const TodoStreamResponse& message)
 {
+    std::cout << "Receiver::recvSubMessage: [info]: "
+              << message.info << ", [time]: "
+              << message.time << std::endl;
     this->m_client_ptr->increaseMsgCount();
     this->m_client_ptr->printMsgCount();
 }
@@ -29,18 +32,20 @@ void Receiver::bindClient(TodoClient* client_ptr)
 
 TodoClient::TodoClient(
     const std::string& client_id,
-    const std::string& connect_address,
+    const std::string& broker_address,
     const std::string& sub_topic,
     const std::string& sub_address)
 {
     // initialize ClientService
-    this->m_service = std::make_shared<ClientService<Receiver>>(client_id, connect_address, sub_topic, sub_address);
-    // receiver bind ClientService
+    this->m_service = std::make_shared<ClientService<Receiver>>(client_id, broker_address, sub_topic, sub_address);
+    // receiver bind TodoClient
     Receiver r;
     r.bindClient(this);
     // register Receiver
     this->m_service->registerReceiver(r);
     this->m_service->start();
+
+    m_msg_count = 0;
 }
 
 TodoClient::~TodoClient()
@@ -55,9 +60,14 @@ std::vector<Todo> TodoClient::getAllTodo(const std::string& worker_id)
     this->m_service->sendMessage(req);
     // recv response from DEALER
     auto rsp = this->m_service->recvMessage();
-    if (std::holds_alternative<std::vector<Todo>>(rsp.payload))
+    if (!rsp)
     {
-        return std::get<std::vector<Todo>>(rsp.payload);
+        std::cerr << "recvMessage timeout" << std::endl;
+        return {};
+    }
+    if (std::holds_alternative<std::vector<Todo>>(rsp->payload))
+    {
+        return std::get<std::vector<Todo>>(rsp->payload);
     }
     throw std::runtime_error("Unexpected response type for GET_ALL");
 }
@@ -67,9 +77,14 @@ std::optional<Todo> TodoClient::getTodo(const std::string& worker_id, uint id)
     TodoRequest req(worker_id, TodoAction::GET, id);
     this->m_service->sendMessage(req);
     auto rsp = this->m_service->recvMessage();
-    if (std::holds_alternative<Todo>(rsp.payload))
+    if (!rsp)
     {
-        return std::get<Todo>(rsp.payload);
+        std::cerr << "recvMessage timeout" << std::endl;
+        return {};
+    }
+    if (std::holds_alternative<Todo>(rsp->payload))
+    {
+        return std::get<Todo>(rsp->payload);
     }
 
     return std::nullopt;
@@ -80,9 +95,14 @@ bool TodoClient::createTodo(const std::string& worker_id, const Todo& todo)
     TodoRequest req(worker_id, TodoAction::CREATE, todo);
     this->m_service->sendMessage(req);
     auto rsp = this->m_service->recvMessage();
-    if (std::holds_alternative<bool>(rsp.payload))
+    if (!rsp)
     {
-        return std::get<bool>(rsp.payload);
+        std::cerr << "recvMessage timeout" << std::endl;
+        return {};
+    }
+    if (std::holds_alternative<bool>(rsp->payload))
+    {
+        return std::get<bool>(rsp->payload);
     }
 
     throw std::runtime_error("Unexpected response type for CREATE");
@@ -93,9 +113,14 @@ bool TodoClient::modifyTodo(const std::string& worker_id, const Todo& todo)
     TodoRequest req(worker_id, TodoAction::MODIFY, todo);
     this->m_service->sendMessage(req);
     auto rsp = this->m_service->recvMessage();
-    if (std::holds_alternative<bool>(rsp.payload))
+    if (!rsp)
     {
-        return std::get<bool>(rsp.payload);
+        std::cerr << "recvMessage timeout" << std::endl;
+        return {};
+    }
+    if (std::holds_alternative<bool>(rsp->payload))
+    {
+        return std::get<bool>(rsp->payload);
     }
 
     throw std::runtime_error("Unexpected response type for MODIFY");
@@ -106,9 +131,14 @@ bool TodoClient::deleteTodo(const std::string& worker_id, uint id)
     TodoRequest req(worker_id, TodoAction::DELETE, id);
     this->m_service->sendMessage(req);
     auto rsp = this->m_service->recvMessage();
-    if (std::holds_alternative<bool>(rsp.payload))
+    if (!rsp)
     {
-        return std::get<bool>(rsp.payload);
+        std::cerr << "recvMessage timeout" << std::endl;
+        return {};
+    }
+    if (std::holds_alternative<bool>(rsp->payload))
+    {
+        return std::get<bool>(rsp->payload);
     }
 
     throw std::runtime_error("Unexpected response type for DELETE");
@@ -186,9 +216,14 @@ int main(int argc, char** argv)
         workerArg,
         BackendEP);
 
+    std::cout << "TodoClient start" << std::endl;
+    std::cout << "Broker address: " << EP << std::endl;
+    std::cout << "Sub address: " << BackendEP << std::endl;
+
     if (actionArg == "GET_ALL")
     {
         auto todos = client.getAllTodo(workerArg);
+        std::cout << "GET_ALL:" << std::endl;
         for (const auto& todo : todos)
         {
             std::cout << "ID: " << todo.id
@@ -202,8 +237,10 @@ int main(int argc, char** argv)
         {
             throw std::invalid_argument("GET requires a payload (Todo ID).");
         }
-        int id = std::stoi(payloadArg);
+        uint id = std::stoi(payloadArg);
+        std::cout << "id is: " << id << std::endl;
         auto todo = client.getTodo(workerArg, id);
+        std::cout << "GET:" << std::endl;
         if (todo)
         {
             std::cout << "ID: " << todo->id
@@ -221,7 +258,9 @@ int main(int argc, char** argv)
         {
             throw std::invalid_argument("CREATE requires a payload (JSON Todo).");
         }
+        std::cout << "todoJson: " << payloadArg << std::endl;
         json todoJson = json::parse(payloadArg);
+        std::cout << "todoJson: " << todoJson << std::endl;
         Todo todo = Todo::from_json(todoJson);
         if (client.createTodo(workerArg, todo))
         {

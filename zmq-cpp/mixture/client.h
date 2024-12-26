@@ -32,7 +32,7 @@ class TodoClient
 public:
     TodoClient(
         const std::string& client_id,
-        const std::string& connect_address,
+        const std::string& broker_address,
         const std::string& sub_topic,
         const std::string& sub_address);
     ~TodoClient();
