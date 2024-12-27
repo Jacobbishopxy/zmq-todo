@@ -19,7 +19,6 @@ void Receiver::recvSubMessage(const TodoStreamResponse& message)
               << message.info << ", [time]: "
               << message.time << std::endl;
     this->m_client_ptr->increaseMsgCount();
-    this->m_client_ptr->printMsgCount();
 }
 
 void Receiver::bindClient(TodoClient* client_ptr)
@@ -42,7 +41,6 @@ TodoClient::TodoClient(
     r.bindClient(this);
     // register Receiver
     this->m_service->registerReceiver(r);
-    this->m_service->start();
 
     m_msg_count = 0;
 }
@@ -146,10 +144,10 @@ bool TodoClient::deleteTodo(const std::string& worker_id, uint id)
 void TodoClient::increaseMsgCount()
 {
     this->m_msg_count += 1;
-}
-
-void TodoClient::printMsgCount()
-{
     std::cout << "TodoClient::printMsgCount: " << this->m_msg_count << std::endl;
 }
 
+void TodoClient::start()
+{
+    this->m_service->start();
+}

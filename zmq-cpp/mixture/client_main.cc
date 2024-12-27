@@ -7,7 +7,6 @@
 
 #include "client.h"
 
-
 void printUsage(const char* programName)
 {
     std::cout << "Usage: " << programName
@@ -67,6 +66,7 @@ int main(int argc, char** argv)
         EP,
         workerArg,
         BackendEP);
+    client.start();
 
     std::cout << "TodoClient start" << std::endl;
     std::cout << "Broker address: " << EP << std::endl;

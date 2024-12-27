@@ -43,7 +43,7 @@ public:
     bool deleteTodo(const std::string& worker_id, uint id);
 
     void increaseMsgCount();
-    void printMsgCount();
+    void start();
 
 private:
     std::shared_ptr<ClientService<Receiver>> m_service;

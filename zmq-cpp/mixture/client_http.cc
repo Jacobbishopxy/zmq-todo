@@ -39,7 +39,6 @@ TodoClientHttp::TodoClientHttp(
     r.bindClient(this);
     // register Receiver
     this->m_service->registerReceiver(r);
-    this->m_service->start();
 
     m_msg_count = 0;
 }
@@ -321,7 +320,10 @@ void TodoClientHttp::start(int port, const std::string& worker_id)
         this->m_uws_app->listen(port, listen).run();
     };
 
+    // start HTTP + WebSocket server
     m_uws_t = std::thread(t);
+    // start zmq DEALER + SUB
+    this->m_service->start();
 }
 
 void TodoClientHttp::broadcastMessage(const std::string& message)
