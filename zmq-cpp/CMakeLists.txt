@@ -6,7 +6,9 @@
 include_directories("include")
 include_directories("protocol")
 
-add_subdirectory("tests")
-add_subdirectory("proxy_req_router")
-add_subdirectory("majordomo")
+if (UNIX)
+    add_subdirectory("tests")
+    add_subdirectory("proxy_req_router")
+    add_subdirectory("majordomo")
+endif ()
 add_subdirectory("mixture")
