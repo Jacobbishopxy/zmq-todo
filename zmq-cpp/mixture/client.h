@@ -18,7 +18,7 @@ class TodoClient;
 class Receiver : public IReceiver
 {
 public:
-    void recvSubMessage(const TodoStreamResponse& message) override;
+    void recvSubMessage(const std::string& topic, const TodoStreamResponse& message) override;
 
     void bindClient(TodoClient* client_ptr);
 

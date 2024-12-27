@@ -25,7 +25,7 @@ class TodoClientHttp;
 class Receiver : public IReceiver
 {
 public:
-    void recvSubMessage(const TodoStreamResponse& message) override;
+    void recvSubMessage(const std::string& topic, const TodoStreamResponse& message) override;
 
     void bindClient(TodoClientHttp* client_ptr);
 
@@ -51,8 +51,8 @@ public:
     bool deleteTodo(const std::string& worker_id, uint id);
 
     void triggerMsgCount();
-    void broadcastMessage(const std::string& message);
-    void start(int port, const std::string& worker_id);
+    void broadcastMessage(const std::string& topic, const std::string& message);
+    void start(int port);
 
 private:
     std::string m_sub_topic;

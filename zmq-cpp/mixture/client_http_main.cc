@@ -40,7 +40,7 @@ int main(int argc, char** argv)
     }
 
     TodoClientHttp client(clientArg, EP, workerArg, BackendEP);
-    client.start(port, workerArg);
+    client.start(port);
 
     std::cout << "TodoClient start" << std::endl;
     std::cout << "Broker address: " << EP << std::endl;

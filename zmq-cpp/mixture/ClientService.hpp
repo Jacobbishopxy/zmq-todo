@@ -17,7 +17,7 @@
 
 struct IReceiver
 {
-    virtual void recvSubMessage(const TodoStreamResponse& message) = 0;
+    virtual void recvSubMessage(const std::string& topic, const TodoStreamResponse& message) = 0;
 };
 
 template <typename T>
@@ -184,8 +184,8 @@ private:
         dealer.connect(m_router_address);
 
         zmq::socket_t sub(m_context, zmq::socket_type::sub);
-        // topic
-        sub.set(zmq::sockopt::subscribe, m_sub_topic);
+        // subscribe to all topics
+        sub.set(zmq::sockopt::subscribe, "");
         // connect
         sub.connect(m_sub_address);
 
@@ -240,12 +240,13 @@ private:
                     std::cerr << "Invalid message from PUB" << std::endl;
                     continue;
                 }
+                auto topic = messageToString(mm[0]);
                 // pop out the first element, which is the topic name
                 mm.erase(mm.begin());
                 // zmq -> adt
                 TodoStreamResponse rsp(std::move(mm));
                 // receiver SPI
-                receiver.recvSubMessage(rsp);
+                receiver.recvSubMessage(topic, rsp);
             }
         }
     }

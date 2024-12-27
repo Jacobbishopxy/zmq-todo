@@ -13,11 +13,12 @@
 
 class TodoClient;
 
-void Receiver::recvSubMessage(const TodoStreamResponse& message)
+void Receiver::recvSubMessage(const std::string& topic, const TodoStreamResponse& message)
 {
-    std::cout << "Receiver::recvSubMessage: [info]: "
-              << message.info << ", [time]: "
-              << message.time << std::endl;
+    std::cout << "Receiver::recvSubMessage:\n"
+              << "[topic]: " << topic
+              << ", [info]: " << message.info
+              << ", [time]: " << message.time << std::endl;
     this->m_client_ptr->increaseMsgCount();
 }
 

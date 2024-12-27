@@ -9,13 +9,13 @@
 
 #include "json.hpp"
 
-void Receiver::recvSubMessage(const TodoStreamResponse& message)
+void Receiver::recvSubMessage(const std::string& topic, const TodoStreamResponse& message)
 {
     this->m_client_ptr->triggerMsgCount();
 
     nlohmann::json j;
     to_json(j, message);
-    this->m_client_ptr->broadcastMessage(j.dump());
+    this->m_client_ptr->broadcastMessage(topic, j.dump());
 }
 
 void Receiver::bindClient(TodoClientHttp* client_ptr)
@@ -145,21 +145,28 @@ void TodoClientHttp::triggerMsgCount()
     // std::cout << "TodoClientHttp::triggerMsgCount msg_count: " << m_msg_count << std::endl;
 }
 
-void TodoClientHttp::start(int port, const std::string& worker_id)
+void TodoClientHttp::start(int port)
 {
     // uWS::App
     std::cout << "Starting TodoClientHttp server on port " << port << "..." << std::endl;
 
-    auto t = [this, port, worker_id]()
+    auto t = [this, port]()
     {
         this->m_uws_app = std::make_shared<uWS::App>();
 
         // ================================================================================================
         // get all todos
         // ================================================================================================
-        auto get_all = [this, worker_id](auto* res, auto* req)
+        auto get_all = [this](auto* res, auto* req)
         {
-            auto all_todos = this->getAllTodo(worker_id);
+            // ?worker_id=
+            std::string_view worker_id = req->getQuery("worker_id");
+            if (worker_id.empty())
+            {
+                res->writeStatus("400 Bad Request")->end("Missing required query parameter: worker_id");
+                return;
+            }
+            auto all_todos = this->getAllTodo(std::string(worker_id));
             try
             {
                 nlohmann::json j = to_json(all_todos);
@@ -175,10 +182,17 @@ void TodoClientHttp::start(int port, const std::string& worker_id)
         // ================================================================================================
         // get todo
         // ================================================================================================
-        auto get_todo = [this, worker_id](auto* res, auto* req)
+        auto get_todo = [this](auto* res, auto* req)
         {
+            // ?worker_id=
+            std::string_view worker_id = req->getQuery("worker_id");
+            if (worker_id.empty())
+            {
+                res->writeStatus("400 Bad Request")->end("Missing required query parameter: worker_id");
+                return;
+            }
             auto todo_id = std::stoi(std::string(req->getParameter(0)));
-            auto todo = this->getTodo(worker_id, todo_id);
+            auto todo = this->getTodo(std::string(worker_id), todo_id);
             if (todo)
             {
                 nlohmann::json j;
@@ -195,8 +209,15 @@ void TodoClientHttp::start(int port, const std::string& worker_id)
         // ================================================================================================
         // create todo
         // ================================================================================================
-        auto new_todo = [this, worker_id](auto* res, auto* req)
+        auto new_todo = [this](auto* res, auto* req)
         {
+            // ?worker_id=
+            std::string_view worker_id = req->getQuery("worker_id");
+            if (worker_id.empty())
+            {
+                res->writeStatus("400 Bad Request")->end("Missing required query parameter: worker_id");
+                return;
+            }
             auto isAborted = std::make_shared<bool>(false);
             std::string buffer;
             auto onData = [this,
@@ -211,7 +232,7 @@ void TodoClientHttp::start(int port, const std::string& worker_id)
                     try
                     {
                         Todo todo = nlohmann::json::parse(buffer);
-                        auto success = this->createTodo(worker_id, todo);
+                        auto success = this->createTodo(std::string(worker_id), todo);
                         if (success)
                             res->end("success!");
                         else
@@ -236,8 +257,15 @@ void TodoClientHttp::start(int port, const std::string& worker_id)
         // ================================================================================================
         // modify todo
         // ================================================================================================
-        auto modify_todo = [this, worker_id](auto* res, auto* req)
+        auto modify_todo = [this](auto* res, auto* req)
         {
+            // ?worker_id=
+            std::string_view worker_id = req->getQuery("worker_id");
+            if (worker_id.empty())
+            {
+                res->writeStatus("400 Bad Request")->end("Missing required query parameter: worker_id");
+                return;
+            }
             auto isAborted = std::make_shared<bool>(false);
             std::string buffer;
             auto onData = [this,
@@ -252,7 +280,7 @@ void TodoClientHttp::start(int port, const std::string& worker_id)
                     try
                     {
                         Todo todo = nlohmann::json::parse(buffer);
-                        auto success = this->modifyTodo(worker_id, todo);
+                        auto success = this->modifyTodo(std::string(worker_id), todo);
                         if (success)
                             res->end("success!");
                         else
@@ -278,10 +306,17 @@ void TodoClientHttp::start(int port, const std::string& worker_id)
         // ================================================================================================
         // delete todo
         // ================================================================================================
-        auto delete_todo = [this, worker_id](auto* res, auto* req)
+        auto delete_todo = [this](auto* res, auto* req)
         {
+            // ?worker_id=
+            std::string_view worker_id = req->getQuery("worker_id");
+            if (worker_id.empty())
+            {
+                res->writeStatus("400 Bad Request")->end("Missing required query parameter: worker_id");
+                return;
+            }
             auto todoId = std::stoi(std::string(req->getParameter(0)));
-            auto success = this->deleteTodo(worker_id, todoId);
+            auto success = this->deleteTodo(std::string(worker_id), todoId);
             if (success)
                 res->end("success!");
             else
@@ -326,12 +361,13 @@ void TodoClientHttp::start(int port, const std::string& worker_id)
     this->m_service->start();
 }
 
-void TodoClientHttp::broadcastMessage(const std::string& message)
+void TodoClientHttp::broadcastMessage(const std::string& topic, const std::string& message)
 {
+    std::string_view t = topic;
     auto loop = this->m_uws_app->getLoop();
-    auto defer = [this, message]()
+    auto defer = [this, t, message]()
     {
-        this->m_uws_app->publish(m_sub_topic, message, uWS::OpCode::TEXT);
+        this->m_uws_app->publish(t, message, uWS::OpCode::TEXT);
     };
     loop->defer(defer);
 }
@@ -356,9 +392,10 @@ void TodoClientHttp::handleWebSocketMessage(uWS::WebSocket<false, true, WsData>*
         std::cerr << "TodoClientHttp::handleWebSocketMessage parse_error: " << e.what() << std::endl;
         return;
     }
-    if (request.contains("action") && request["action"] == "subscribe")
+    if (request.contains("action") && request["action"] == "subscribe" && request.contains("topic"))
     {
-        ws->subscribe(m_sub_topic);
+        std::string topic = request["topic"];
+        ws->subscribe(topic);
     }
     else if (request.contains("action") && request["action"] == "unsubscribe")
     {
