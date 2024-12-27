@@ -39,7 +39,6 @@ public:
     TodoClientHttp(
         const std::string& client_id,
         const std::string& broker_address,
-        const std::string& sub_topic,
         const std::string& sub_address);
 
     ~TodoClientHttp();
@@ -55,7 +54,6 @@ public:
     void start(int port);
 
 private:
-    std::string m_sub_topic;
     std::shared_ptr<ClientService<Receiver>> m_service;
     std::shared_ptr<uWS::App> m_uws_app;
     std::thread m_uws_t;

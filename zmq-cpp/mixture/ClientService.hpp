@@ -184,8 +184,8 @@ private:
         dealer.connect(m_router_address);
 
         zmq::socket_t sub(m_context, zmq::socket_type::sub);
-        // subscribe to all topics
-        sub.set(zmq::sockopt::subscribe, "");
+        // topic
+        sub.set(zmq::sockopt::subscribe, m_sub_topic);
         // connect
         sub.connect(m_sub_address);
 

@@ -28,12 +28,10 @@ void Receiver::bindClient(TodoClientHttp* client_ptr)
 TodoClientHttp::TodoClientHttp(
     const std::string& client_id,
     const std::string& broker_address,
-    const std::string& sub_topic,
     const std::string& sub_address)
 {
-    m_sub_topic = sub_topic;
-    // initialize ClientService
-    this->m_service = std::make_shared<ClientService<Receiver>>(client_id, broker_address, sub_topic, sub_address);
+    // initialize ClientService (subscribe to all topics)
+    this->m_service = std::make_shared<ClientService<Receiver>>(client_id, broker_address, "", sub_address);
     // receiver bind TodoClient
     Receiver r;
     r.bindClient(this);
@@ -397,9 +395,10 @@ void TodoClientHttp::handleWebSocketMessage(uWS::WebSocket<false, true, WsData>*
         std::string topic = request["topic"];
         ws->subscribe(topic);
     }
-    else if (request.contains("action") && request["action"] == "unsubscribe")
+    else if (request.contains("action") && request["action"] == "unsubscribe" && request.contains("topic"))
     {
-        ws->unsubscribe(m_sub_topic);
+        std::string topic = request["topic"];
+        ws->unsubscribe(topic);
     }
     else if (request.contains("action") && request["action"] == "disconnect")
     {
