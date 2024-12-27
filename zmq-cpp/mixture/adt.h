@@ -15,6 +15,9 @@
 #include "json.hpp"
 
 using json = nlohmann::json;
+#if WIN32
+using uint = unsigned int;
+#endif
 
 enum class TodoAction
 {

@@ -5,3 +5,9 @@
 /target
 # cpp
 /build
+
+# windows
+.idea
+.vs
+cmake-build-debug
+out
