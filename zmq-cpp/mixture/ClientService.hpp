@@ -137,10 +137,10 @@ public:
         // recv message via m_main_pair_i from dealer (cross threads)
         std::vector<zmq::message_t> mm;
         auto recv_r = zmq::recv_multipart(m_main_pair_i, std::back_inserter(mm));
-        // check message
-        if (mm.size() <= 1)
+        // if timeout, recv_multipart gets empty message
+        if (mm.empty())
         {
-            std::cerr << "Invalid message from ROUTER" << std::endl;
+            std::cerr << "Recv message from worker timeout!" << std::endl;
             return std::nullopt;
         }
         TodoResponse rsp(std::move(mm));
