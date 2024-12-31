@@ -89,16 +89,13 @@ public:
 
         if (this->m_processor.has_value())
         {
-            // move m_processor into eventLoop thread
-            T processor = std::move(this->m_processor.value());
-            this->m_processor.reset();
-
             // move m_processor into lambda
-            auto t = [this, processor = std::move(processor)]() mutable
+            auto t = [this, processor = std::move(this->m_processor.value())]() mutable
             {
                 // move m_processor into eventLoop
                 this->eventLoop(std::move(processor));
             };
+            this->m_processor.reset();
             m_event_thread = std::thread(t);
         }
         else
