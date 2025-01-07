@@ -11,7 +11,7 @@
 #include <thread>
 #include <zmq.hpp>
 
-// #include "common.hpp"
+#include "common.hpp"
 
 class TodoBroker
 {
@@ -26,12 +26,12 @@ private:
     std::string m_pub_address;
     std::string m_sub_address;
     zmq::context_t m_context;
-    // CustomMonitor m_router_monitor;
-    // CustomMonitor m_pub_monitor;
-    // CustomMonitor m_sub_monitor;
+    std::shared_ptr<CustomMonitor> m_router_monitor;
+    std::shared_ptr<CustomMonitor> m_pub_monitor;
+    std::shared_ptr<CustomMonitor> m_sub_monitor;
     std::thread m_router_t;
     std::thread m_proxy_t;
-    // std::thread m_monitor_t;
+    std::thread m_monitor_t;
 
     // void setupMonitor();
 };

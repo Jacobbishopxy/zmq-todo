@@ -63,6 +63,16 @@ public:
         std::cout << "[EVENT ACCEPTED] Address: " << addr << std::endl;
     }
 
+    void* handle()
+    {
+        return this->monitor_socket().handle();
+    }
+
+    bool process(short events)
+    {
+        return this->process_event(events);
+    }
+
     void start(zmq::socket_t& socket, std::string const& addr)
     {
         this->init(socket, addr);
