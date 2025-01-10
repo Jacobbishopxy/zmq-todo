@@ -9,36 +9,53 @@
 #define __C__H__
 
 #include <iostream>
+#include <optional>
 #include <string>
 
 // ================================================================================================
 // template layer
 // ================================================================================================
 
-template <typename T>
-class WorkerService
+template <class ProcessorType, typename BuilderPatternReturnType>
+class WorkerBuilder
 {
 public:
-    void registerProcessor(T& p)
+    WorkerBuilder() = default;
+    WorkerBuilder(WorkerBuilder&&) noexcept = default;
+    WorkerBuilder& operator=(WorkerBuilder&&) noexcept = default;
+
+    // 禁止拷贝
+    WorkerBuilder(const WorkerBuilder&) = delete;
+    WorkerBuilder& operator=(const WorkerBuilder&) = delete;
+
+    // 注册 Processor 实例
+    BuilderPatternReturnType&& registerProcessor(ProcessorType& spi)
     {
-        std::cout << "WorkerService<T>::registerProcessor T: " << typeid(p).name() << std::endl;
-        processor_ = &p;
+        std::cout << "WorkerBuilder::registerProcessor s: " << typeid(spi).name() << std::endl;
+
+        m_processor = std::move(spi);
+        return std::move(static_cast<BuilderPatternReturnType&&>(*this));
     }
 
-    void onMessage(const std::string& source_id, const std::string& message)
+protected:
+    std::optional<ProcessorType> m_processor;
+};
+
+template <typename T>
+class WorkerService : public WorkerBuilder<T, WorkerService<T>>
+{
+public:
+    void recvMsg(const std::string& source_id, const std::string& message)
     {
-        if (processor_)
+        if (this->m_processor.has_value())
         {
-            processor_->recvMsg(source_id, message);
+            this->m_processor.value().recvMsg(source_id, message);
         }
         else
         {
             std::cout << "No processor registered." << std::endl;
         }
     }
-
-private:
-    T* processor_ = nullptr;  // Pointer to the registered processor
 };
 
 #endif  //!__C__H__

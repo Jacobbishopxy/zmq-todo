@@ -20,12 +20,12 @@ public:
 
     virtual void onMessage(const std::string& source_id, const std::string& message)
     {
-        std::cout << "Processor handling message from " << source_id
-                  << ": " << message << std::endl;
+        throw std::logic_error("Function not implemented yet.");
     }
 
     void recvMsg(const std::string& source_id, const std::string& message)
     {
+        // TODO: BUG!
         this->onMessage(source_id, message);
     }
 };
@@ -34,7 +34,9 @@ class OmsWorker
 {
 public:
     OmsWorker()
-        : service(std::make_unique<WorkerService<Processor>>()) {}
+    {
+        service = std::make_shared<WorkerService<Processor>>();
+    }
 
     void registerProcessor(Processor& p)
     {
@@ -44,11 +46,11 @@ public:
 
     void processMessage(const std::string& source_id, const std::string& message)
     {
-        service->onMessage(source_id, message);
+        service->recvMsg(source_id, message);
     }
 
 private:
-    std::unique_ptr<WorkerService<Processor>> service;
+    std::shared_ptr<WorkerService<Processor>> service;
 };
 
 // ================================================================================================
@@ -60,8 +62,9 @@ class MyProcessor : public Processor
 public:
     void onMessage(const std::string& source_id, const std::string& message) override
     {
-        std::cout << "MyProcessor handling custom message from " << source_id
-                  << ": " << message << std::endl;
+        std::cout << "MyProcessor handling custom message from "
+                  << source_id << ": "
+                  << message << std::endl;
     }
 };
 
@@ -69,20 +72,12 @@ public:
 
 int main(int argc, char** argv)
 {
-    OmsWorker worker1;
-    Processor m1;
 
-    worker1.registerProcessor(m1);
-    worker1.processMessage("s1", "msg");
+    OmsWorker worker;
+    MyProcessor m;
 
-    // ================================================================================================
-    std::cout << std::endl;
-
-    OmsWorker worker2;
-    MyProcessor m2;
-
-    worker2.registerProcessor(m2);
-    worker2.processMessage("s2", "xy");
+    worker.registerProcessor(m);
+    worker.processMessage("s", "xy");
 
     return 0;
 }
