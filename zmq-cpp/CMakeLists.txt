@@ -13,3 +13,6 @@ if (UNIX)
 endif ()
 add_subdirectory("mixture")
 add_subdirectory("mul_msg")
+
+add_subdirectory("crtp_dyn")
+
