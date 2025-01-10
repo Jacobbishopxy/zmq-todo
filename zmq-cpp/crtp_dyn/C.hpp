@@ -33,12 +33,12 @@ public:
     {
         std::cout << "WorkerBuilder::registerProcessor s: " << typeid(spi).name() << std::endl;
 
-        m_processor = std::move(spi);
+        m_processor = std::ref(spi);
         return std::move(static_cast<BuilderPatternReturnType&&>(*this));
     }
 
 protected:
-    std::optional<ProcessorType> m_processor;
+    std::optional<std::reference_wrapper<ProcessorType>> m_processor;
 };
 
 template <typename T>
@@ -47,9 +47,9 @@ class WorkerService : public WorkerBuilder<T, WorkerService<T>>
 public:
     void recvMsg(const std::string& source_id, const std::string& message)
     {
-        if (this->m_processor.has_value())
+        if (this->m_processor)
         {
-            this->m_processor.value().recvMsg(source_id, message);
+            this->m_processor->get().recvMsg(source_id, message);
         }
         else
         {

@@ -72,10 +72,10 @@ public:
 
 int main(int argc, char** argv)
 {
-
     OmsWorker worker;
-    MyProcessor m;
 
+    // this should have the same lifetime as `worker`
+    MyProcessor m;
     worker.registerProcessor(m);
     worker.processMessage("s", "xy");
 
