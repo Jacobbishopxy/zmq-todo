@@ -16,8 +16,6 @@
 class Processor
 {
 public:
-    virtual ~Processor() = default;
-
     virtual void onMessage(const std::string& source_id, const std::string& message)
     {
         throw std::logic_error("Function not implemented yet.");
@@ -25,7 +23,6 @@ public:
 
     void recvMsg(const std::string& source_id, const std::string& message)
     {
-        // TODO: BUG!
         this->onMessage(source_id, message);
     }
 };
@@ -38,7 +35,7 @@ public:
         service = std::make_shared<WorkerService<Processor>>();
     }
 
-    void registerProcessor(Processor& p)
+    void registerProcessor(std::shared_ptr<Processor> p)
     {
         std::cout << "OmsWorker::registerProcessor p: " << typeid(p).name() << std::endl;
         service->registerProcessor(p);
@@ -74,10 +71,18 @@ int main(int argc, char** argv)
 {
     OmsWorker worker;
 
-    // this should have the same lifetime as `worker`
-    MyProcessor m;
-    worker.registerProcessor(m);
-    worker.processMessage("s", "xy");
+    {
+        std::shared_ptr<MyProcessor> m = std::make_shared<MyProcessor>();
+        worker.registerProcessor(m);
+    }
 
+    try
+    {
+        worker.processMessage("s", "xy");
+    }
+    catch (...)
+    {
+        std::cerr << "FAILED!!!" << std::endl;
+    }
     return 0;
 }

@@ -9,7 +9,7 @@
 #define __C__H__
 
 #include <iostream>
-#include <optional>
+#include <memory>
 #include <string>
 
 // ================================================================================================
@@ -29,16 +29,16 @@ public:
     WorkerBuilder& operator=(const WorkerBuilder&) = delete;
 
     // 注册 Processor 实例
-    BuilderPatternReturnType&& registerProcessor(ProcessorType& spi)
+    BuilderPatternReturnType&& registerProcessor(std::shared_ptr<ProcessorType> spi)
     {
         std::cout << "WorkerBuilder::registerProcessor s: " << typeid(spi).name() << std::endl;
 
-        m_processor = std::ref(spi);
+        m_processor = spi;
         return std::move(static_cast<BuilderPatternReturnType&&>(*this));
     }
 
 protected:
-    std::optional<std::reference_wrapper<ProcessorType>> m_processor;
+    std::shared_ptr<ProcessorType> m_processor;
 };
 
 template <typename T>
@@ -49,7 +49,7 @@ public:
     {
         if (this->m_processor)
         {
-            this->m_processor->get().recvMsg(source_id, message);
+            this->m_processor->recvMsg(source_id, message);
         }
         else
         {
