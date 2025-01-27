@@ -22,11 +22,18 @@ const std::string FrontendEP = "tcp://127.0.0.1:5565";
 const std::string BackendEP = "tcp://127.0.0.1:5566";
 #endif
 
-#if 1
+#if 0
 const std::string EP = "tcp://0.0.0.0:5555";
 const std::string EP2 = "tcp://0.0.0.0:5556";
 const std::string FrontendEP = "tcp://0.0.0.0:5565";
 const std::string BackendEP = "tcp://0.0.0.0:5566";
+#endif
+
+#if 1
+const std::string EP = "ipc:///tmp/zmq_todo_EP";
+const std::string EP2 = "ipc:///tmp/zmq_todo_EP2";
+const std::string FrontendEP = "ipc:///tmp/zmq_todo_FrontendEP";
+const std::string BackendEP = "ipc:///tmp/zmq_todo_BackendEP";
 #endif
 
 const std::string PubSubTopic = "TA";

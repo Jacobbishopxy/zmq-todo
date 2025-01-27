@@ -84,7 +84,7 @@ void TodoBroker::run()
         pub.bind(this->m_pub_address);
         m_pub_monitor->init(pub, "inproc://mixture_pub_monitor");
 
-        // notify pub/sub monitor read
+        // notify pub/sub monitor ready
         proxy_ready.store(true);
 
         // start pub/sub proxy
