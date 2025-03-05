@@ -5,6 +5,10 @@
 ```sh
 # Ubuntu
 apt-get install libzmq-dev
+
+# Error: Package 'libzmq-dev' has no installation candidate
+apt-get install libzmq3-dev
+
 # MacOS
 brew install zeromq
 
