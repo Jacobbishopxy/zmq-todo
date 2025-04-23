@@ -15,6 +15,12 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # ================================================================================================
 
 if (UNIX)
+    # json
+    set(JSON_VERSION 3.11.3)
+    set(JSON_ROOT "/opt/qi-deps/json-${JSON_VERSION}")
+    message("Using ${JSON_ROOT}")
+    include_directories("${JSON_ROOT}/include")
+
     # spdlog
     set(SPDLOG_VERSION 1.15.0)
     set(SPDLOG_ROOT "/opt/qi-deps/spdlog-${SPDLOG_VERSION}")

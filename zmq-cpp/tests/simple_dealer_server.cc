@@ -6,6 +6,7 @@
  **/
 #include <iostream>
 #include <zmq.hpp>
+#include <zmq_addon.hpp>
 
 #include "common.hpp"
 
@@ -51,6 +52,9 @@ int main(int argc, char** argv)
     dealer.bind(EP);
     std::cout << "Dealer bound to " << EP << "..." << std::endl;
 
+    recvMultipartPrint(dealer);
+
+#if 0
     // send to a router
     zmq::message_t send_to(router_id.size());
     memcpy(send_to.data(), router_id.data(), router_id.size());
@@ -66,6 +70,7 @@ int main(int argc, char** argv)
     std::cout << "Sent request: " << request_text << std::endl;
 
     recvMultipartPrint(dealer);
+#endif
 
     return 0;
 }

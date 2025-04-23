@@ -7,7 +7,9 @@
 
 #include <iostream>
 #include <string>
+#include <vector>
 #include <zmq.hpp>
+#include <zmq_addon.hpp>
 
 #include "common.hpp"
 
@@ -15,12 +17,27 @@ int main()
 {
     zmq::context_t context(1);
     zmq::socket_t client(context, zmq::socket_type::dealer);
+    client.set(zmq::sockopt::routing_id, "my_dealer_client");
 
     // Connect to the frontend ROUTER socket
     client.connect(FrontendEP);
     std::cout << "Client connected to frontend: " << FrontendEP << "..."
               << std::endl;
 
+    for (int i = 0; i < 5; ++i)
+    {
+        //
+        auto m1 = stringToMessage("hello!");
+        auto m2 = stringToMessage(std::to_string(i));
+
+        std::vector<zmq::message_t> msg;
+        msg.emplace_back(std::move(m1));
+        msg.emplace_back(std::move(m2));
+
+        zmq::send_multipart(client, msg);
+    }
+
+#if 0
     for (int i = 0; i < 5; ++i)
     {
         // Send a request to the server
@@ -37,6 +54,7 @@ int main()
         std::string reply_text(static_cast<char*>(reply.data()), reply.size());
         std::cout << "Client received: " << reply_text << std::endl;
     }
+#endif
 
     return 0;
 }

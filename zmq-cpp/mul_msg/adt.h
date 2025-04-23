@@ -12,7 +12,7 @@
 #include <zmq.hpp>
 
 #include "ProtoMsg.h"
-#include "json.hpp"
+#include <nlohmann/json.hpp>
 
 using json = nlohmann::json;
 #if WIN32

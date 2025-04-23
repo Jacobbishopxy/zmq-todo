@@ -7,6 +7,7 @@
 
 #include <iostream>
 #include <zmq.hpp>
+#include <zmq_addon.hpp>
 
 #include "common.hpp"
 
@@ -60,6 +61,30 @@ int main(int argc, char** argv)
     dealer.connect(EP);
     std::cout << send_from << " connected to " << EP << "..." << std::endl;
 
+    dealer.set(zmq::sockopt::routing_id, "my_dealer_client");
+
+    // Connect to the frontend ROUTER socket
+    dealer.connect(EP);
+    // std::cout << "Client connected to frontend: " << FrontendEP << "..."
+    //           << std::endl;
+
+    for (int i = 0; i < 5; ++i)
+    {
+        //
+        auto m1 = stringToMessage("hello!");
+        auto m2 = stringToMessage(std::to_string(i));
+
+        std::vector<zmq::message_t> msg;
+        msg.emplace_back(std::move(m1));
+        msg.emplace_back(std::move(m2));
+
+        zmq::send_multipart(dealer, msg);
+        std::cout << "sent: " << i << std::endl;
+
+        std::this_thread::sleep_for(std::chrono::seconds(1));
+    }
+
+#if 0
     // send to a router
     zmq::message_t target(send_to.size());
     memcpy(target.data(), send_to.data(), send_to.size());
@@ -75,6 +100,7 @@ int main(int argc, char** argv)
     std::cout << "Sent request: " << request_text << std::endl;
 
     recvMultipartPrint(dealer);
+#endif
 
     return 0;
 }
