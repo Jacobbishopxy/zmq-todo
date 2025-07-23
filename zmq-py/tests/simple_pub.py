@@ -1,7 +1,7 @@
 # @file:	simple_pub.py
 # @author:	Jacob Xie
 # @date:	2025/02/06 17:48:17 Thursday
-# @brief:
+# @brief:   python zmq-py/tests/simple_pub.py
 
 import asyncio
 import zmq

@@ -4,10 +4,11 @@
 # @brief:   python zmq-py/tests/simple_dealer.py
 
 import asyncio
-import zmq
-from zmq.asyncio import Context
 import sys
 from pathlib import Path
+
+import zmq
+from zmq.asyncio import Context
 
 sys.path.append(str(Path(__file__).absolute().parent.parent))
 from common.const import EP
@@ -23,20 +24,22 @@ async def dealer(client_id):
     # dealer.setsockopt_string(zmq.IDENTITY, client_id)
     dealer.setsockopt(zmq.IDENTITY, client_id.encode("utf-8"))
 
-    dealer.connect(EP)  # Connect to the ROUTER server
+    # dealer.connect(EP)  # Connect to the ROUTER server
+    dealer.connect("tcp://localhost:5555")  # Connect to the ROUTER server
 
     print(f"Dealer client {client_id} is ready...")
+    await asyncio.sleep(2)  # Simulate some delay
 
-    # for i in range(5):  # Send 5 messages
+
     for i in range(1):  # Send 5 messages
         message = f"Message {i + 1}".encode("utf-8")
         print(f"Sending message: {message.decode('utf-8')}")
         await dealer.send(message)  # Send the message
 
         # Wait for a reply
-        reply = await dealer.recv_multipart()
+        # reply = await dealer.recv_multipart()
 
-        print(f"Received reply from server: {reply[0].decode('utf-8')}")
+        # print(f"Received reply from server: {reply[0].decode('utf-8')}")
 
         await asyncio.sleep(1)  # Simulate some delay
 
@@ -49,7 +52,7 @@ async def main():
     # Run multiple clients concurrently
     await asyncio.gather(
         dealer("client1"),
-        dealer("client2"),
+        # dealer("client2"),
     )
 
 
