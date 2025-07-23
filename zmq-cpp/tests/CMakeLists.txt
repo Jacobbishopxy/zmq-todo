@@ -74,11 +74,20 @@ target_link_libraries(proxy_req_client cppzmq)
 add_executable(proxy_dealer_client proxy_dealer_client.cc)
 target_link_libraries(proxy_dealer_client cppzmq)
 
+add_executable(proxy_dealer_client1 proxy_dealer_client1.cc)
+target_link_libraries(proxy_dealer_client1 cppzmq)
+
+add_executable(proxy_dealer_worker proxy_dealer_worker.cc)
+target_link_libraries(proxy_dealer_worker cppzmq)
+
 add_executable(proxy_rep_worker proxy_rep_worker.cc)
 target_link_libraries(proxy_rep_worker cppzmq)
 
 add_executable(proxy_router_worker proxy_router_worker.cc)
 target_link_libraries(proxy_router_worker cppzmq)
+
+add_executable(proxy_router_router proxy_router_router.cc)
+target_link_libraries(proxy_router_router cppzmq)
 
 ###################################################################################################
 # proxy: pub -> (xsub -> xpub) -> sub

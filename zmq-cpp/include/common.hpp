@@ -13,8 +13,9 @@
 #include <string>
 #include <thread>
 #include <zmq.hpp>
+#include <zmq_addon.hpp>
 
-#if 0
+#if 1
 // test on localhost
 const std::string EP = "tcp://127.0.0.1:5555";
 const std::string EP2 = "tcp://127.0.0.1:5556";
@@ -29,7 +30,7 @@ const std::string FrontendEP = "tcp://0.0.0.0:5565";
 const std::string BackendEP = "tcp://0.0.0.0:5566";
 #endif
 
-#if 1
+#if 0
 const std::string EP = "ipc:///tmp/zmq_todo_EP";
 const std::string EP2 = "ipc:///tmp/zmq_todo_EP2";
 const std::string FrontendEP = "ipc:///tmp/zmq_todo_FrontendEP";

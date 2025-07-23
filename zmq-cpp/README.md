@@ -45,3 +45,5 @@ sudo make -j install
 - [dealer_client](./tests/proxy_dealer_client.cc)(connect, async) <-> [proxy_dealer_router](./tests/proxy_dealer_router.cc)(binds) <-> [router_worker](./tests/proxy_router_worker.cc)(connect, async)
 
 - [pub](./tests/proxy_pub.cc)(connect) -> [proxy_xpub_xsub](./tests/proxy_pub_sub.cc)(binds) -> [sub](./tests/proxy_sub.cc)(connect)
+
+- [dealer_client1](./tests/proxy_dealer_client1.cc)(connect, async) <-> [proxy_router_router](./tests/proxy_router_router.cc)(binds) <-> [dealer_worker](./tests/proxy_dealer_worker.cc)(connect, async)
